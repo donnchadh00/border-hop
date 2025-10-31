@@ -1,30 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
-import { zoom as d3zoom, zoomIdentity, ZoomTransform } from "d3-zoom";
+import { zoom as d3zoom } from "d3-zoom";
 import { select } from "d3-selection";
-import clsx from "clsx";
-import neighbours from "../data/neighbours.json";
-import { useGame } from "../store/game";
-import type { Feature, FeatureCollection, Geometry, GeoJsonProperties } from "geojson";
+import { CountryPath } from "./CountryPath";
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeoJsonProperties,
+} from "geojson";
 
 type CountryFeature = Feature<Geometry, GeoJsonProperties>;
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 
-function isoOf(f: CountryFeature): string | undefined {
-  const p = (f.properties || {}) as any;
-  return p.ADM0_A3 || p.ISO_A3 || p.iso_a3 || (typeof f.id === "string" ? f.id : undefined);
+// Helpers: property names vary between datasets
+function isoFrom(props: any, id?: string | number) {
+  return props?.ADM0_A3 || props?.ISO_A3 || props?.iso_a3 || (typeof id === "string" ? id : undefined);
 }
-function nameOf(f: CountryFeature): string | undefined {
-  const p = (f.properties || {}) as any;
-  return p.NAME || p.ADMIN || p.name || undefined;
+function nameFrom(props: any) {
+  return props?.NAME || props?.ADMIN || props?.name || undefined;
 }
 
 export default function Map({ width = 1000, height = 600 }) {
-  const { current, visited, moveTo, focusIso, setFocus, hintTarget } = useGame();
   const [fc, setFc] = useState<CountryFC | null>(null);
 
-  // pan/zoom state
-  const [tr, setTr] = useState<ZoomTransform>(zoomIdentity);
   const gRef = useRef<SVGGElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -41,66 +40,80 @@ export default function Map({ width = 1000, height = 600 }) {
   );
   const path = useMemo(() => geoPath(projection), [projection]);
 
-  // init d3-zoom
+  // Imperative zoom: allow wheel/pinch and middle/right drag; left-click remains for selecting paths
   useEffect(() => {
     if (!svgRef.current || !gRef.current) return;
+
     const svg = select(svgRef.current);
-    const z = d3zoom<SVGSVGElement, unknown>()
+    const g = select(gRef.current);
+
+    let raf = 0;
+    let pendingTransform: string | null = null;
+
+    const zoomBehaviour = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.8, 8])
+      .filter((event: any) => {
+        // Allow zoom for:
+        // - wheel/pinch
+        // - right button drag (button === 2)
+        // - middle button drag (button === 1)
+        // - modifier+drag (ctrl/cmd/shift)
+        if (event.type === "wheel") return true;
+        if (event.type === "mousedown" && (event.button === 1 || event.button === 2)) return true;
+        if (event.ctrlKey || event.metaKey || event.shiftKey) return true;
+        // Otherwise (left button without modifiers): let clicks go to paths
+        return false;
+      })
       .on("zoom", (event) => {
-        setTr(event.transform);
+        const t = event.transform.toString();
+        if (raf) {
+          pendingTransform = t;
+          return;
+        }
+        g.attr("transform", t);
+        raf = requestAnimationFrame(() => {
+          if (pendingTransform) g.attr("transform", pendingTransform);
+          pendingTransform = null;
+          raf = 0;
+        });
       });
-    svg.call(z as any);
+
+    svg.call(zoomBehaviour as any);
+
+    // Enable context menu again (right click)
+    svg.on("contextmenu", null);
+
     return () => {
       svg.on(".zoom", null);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
-    <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} className="w-full h-dvh">
-      <rect x="0" y="0" width={width} height={height} className="fill-slate-200 dark:fill-slate-800" />
-      <g ref={gRef} transform={`translate(${tr.x},${tr.y}) scale(${tr.k})`}>
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${width} ${height}`}
+      className="w-full h-dvh"
+    >
+      <rect
+        x="0"
+        y="0"
+        width={width}
+        height={height}
+        className="fill-slate-200 dark:fill-slate-800"
+      />
+      <g ref={gRef} transform="translate(0,0) scale(1)">
         {fc?.features.map((f, i) => {
           const d = path(f as any) || undefined;
-          const iso3 = isoOf(f);
-          const isVisited = !!(iso3 && visited.has(iso3 as any));
-          const isCurrent = iso3 === current;
-          const isFocused = iso3 === focusIso;
-          const isHinted = iso3 && hintTarget && iso3 === hintTarget;
-
+          const iso3 = isoFrom(f.properties, f.id);
+          const name = nameFrom(f.properties);
           return (
-            <path
+            <CountryPath
               key={i}
               d={d}
-              role="button"
-              tabIndex={0}
-              aria-label={`${nameOf(f) ?? "Country"} (${iso3 ?? "?"})`}
-              className={clsx(
-                "stroke-white/70 dark:stroke-black/50 stroke-[0.5] focus:outline-none",
-                isCurrent && "fill-emerald-400",
-                !isCurrent && isVisited && "fill-emerald-300",
-                !isVisited && "fill-slate-300 dark:fill-slate-700",
-                isFocused && "ring-2 ring-offset-2 ring-blue-500",
-                isHinted && "animate-pulse drop-shadow-[0_0_0.35rem_#fde047]"
-              )}
-              onClick={() => {
-                if (!iso3) return;
-                if (!current || (neighbours as Record<string, readonly string[]>)[current]?.includes(iso3)) {
-                  moveTo(iso3 as any);
-                }
-              }}
-              onFocus={() => iso3 && setFocus(iso3 as any)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && iso3) {
-                  e.preventDefault();
-                  if (!current || (neighbours as Record<string, readonly string[]>)[current]?.includes(iso3)) {
-                    moveTo(iso3 as any);
-                  }
-                }
-              }}
-            >
-              <title>{`${iso3 ?? "?"} ${nameOf(f) ?? ""}`.trim()}</title>
-            </path>
+              iso3={iso3}
+              name={name}
+            />
           );
         })}
       </g>
