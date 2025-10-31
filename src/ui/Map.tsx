@@ -4,13 +4,11 @@ import { zoom as d3zoom } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
 import type {
-  Feature,
   FeatureCollection,
   Geometry,
   GeoJsonProperties,
 } from "geojson";
 
-type CountryFeature = Feature<Geometry, GeoJsonProperties>;
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 
 // Helpers: property names vary between datasets
