@@ -26,7 +26,7 @@ export default function Map({ width = 1000, height = 600 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
-    fetch("/countries.geojson")
+    fetch("/countries.simplified.geojson")
       .then((r) => r.json())
       .then((j) => setFc(j as CountryFC))
       .catch((e) => console.error("Failed to load countries.geojson", e));
