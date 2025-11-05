@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useGame } from "../store/game";
 import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
+import CountrySearch from "./CountrySearch";
 
 const ISO = Object.keys(neighbours) as readonly string[];
 const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
@@ -66,6 +67,9 @@ export default function HUD() {
         </div>
         <div className="text-xs">
           Shortest: {shortest ? shortest.join(" → ") : "-"}
+        </div>
+        <div>
+          <CountrySearch source="/countries.geojson" />
         </div>
       </div>
 
