@@ -3,14 +3,27 @@ import { useGame } from "../store/game";
 import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
+import type { GameMode } from "../game/modes";
 
-const ISO = Object.keys(neighbours) as readonly string[];
+const NB = neighbours as Record<string, readonly string[]>;
+const ISO = Object.keys(NB) as readonly string[];
 const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
 
 export default function HUD() {
   const {
-    start, target, current, visited, moves,
-    hintsLeft, useHint, setStartTarget, setHintTarget, hintTarget, reset
+    start,
+    target,
+    current,
+    visited,
+    moves,
+    hintsLeft,
+    useHint,
+    setStartTarget,
+    setHintTarget,
+    hintTarget,
+    reset,
+    mode,
+    setMode,
   } = useGame();
 
   const onStart = () => {
@@ -20,7 +33,7 @@ export default function HUD() {
     setStartTarget(s, t);
   };
 
-  const shortest = start && target ? bfsShortestPath(neighbours as any, start, target) : null;
+  const shortest = start && target ? bfsShortestPath(NB, start, target) : null;
   const nextHop =
     shortest && current
       ? shortest[shortest.indexOf(current) + 1]
@@ -39,7 +52,7 @@ export default function HUD() {
     return () => clearTimeout(id);
   }, [hintTarget, setHintTarget]);
 
-  const won = current && target && current === target;
+  const won = !!current && !!target && current === target;
 
   const playAgain = () => {
     reset();
@@ -50,24 +63,61 @@ export default function HUD() {
     <>
       <div className="fixed left-4 top-4 flex flex-col gap-2 bg-white/80 dark:bg-black/40 backdrop-blur p-3 rounded-xl shadow">
         <div className="font-semibold">Border Hop</div>
-        <div className="text-sm opacity-80">
-          {start ? <>From <b>{start}</b> to <b>{target}</b></> : "Click start to pick a random route"}
+
+        {/* Mode selector */}
+        <div className="flex items-center gap-2 text-sm">
+          <label className="opacity-80">Mode:</label>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as GameMode)}
+            className="border rounded px-2 py-1 bg-white/70 dark:bg-slate-800"
+          >
+            <option>World</option>
+            <option>Europe</option>
+            <option>Time Trial</option>
+            <option>Outline</option>
+          </select>
         </div>
+        {mode === "Outline" && (
+          <div className="text-xs opacity-70">
+            Only start/end outlines are shown. Guessed countries will fill in.
+          </div>
+        )}
+
+        <div className="text-sm opacity-80">
+          {start ? (
+            <>
+              From <b>{start}</b> to <b>{target}</b>
+            </>
+          ) : (
+            "Click start to pick a random route"
+          )}
+        </div>
+
         <div className="flex gap-2">
-          <button onClick={onStart} className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black">
+          <button
+            onClick={onStart}
+            className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black"
+          >
             Start
           </button>
-          <button onClick={onHint} disabled={!shortest || !current || hintsLeft === 0}
-                  className="px-3 py-1 rounded-lg border disabled:opacity-50">
+          <button
+            onClick={onHint}
+            disabled={!shortest || !current || hintsLeft === 0}
+            className="px-3 py-1 rounded-lg border disabled:opacity-50"
+          >
             Hint ({hintsLeft})
           </button>
         </div>
+
         <div className="text-xs">
-          Current: <b>{current ?? "-"}</b> · Moves: <b>{moves}</b> · Visited: {Array.from(visited).join(", ") || "-"}
+          Current: <b>{current ?? "-"}</b> · Moves: <b>{moves}</b> · Visited:{" "}
+          {Array.from(visited).join(", ") || "-"}
         </div>
         <div className="text-xs">
           Shortest: {shortest ? shortest.join(" → ") : "-"}
         </div>
+
         <div>
           <CountrySearch source="/countries.geojson" />
         </div>
@@ -81,7 +131,10 @@ export default function HUD() {
               Path from <b>{start}</b> to <b>{target}</b> in <b>{moves}</b> moves.
             </div>
             <div className="flex gap-2">
-              <button onClick={playAgain} className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black">
+              <button
+                onClick={playAgain}
+                className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black"
+              >
                 Play again
               </button>
               <button onClick={reset} className="px-4 py-2 rounded-lg border">

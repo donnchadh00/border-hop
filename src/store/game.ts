@@ -1,11 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import neighbours from "../data/neighbours.json";
-
-export type ISO3 = keyof typeof neighbours;
+import type { GameMode, ISO3 } from "../game/modes";
+import { poolForMode } from "../game/modes";
 
 type GameState = {
-  // core state
+  // core
   start: ISO3 | null;
   target: ISO3 | null;
   current: ISO3 | null;
@@ -14,15 +13,24 @@ type GameState = {
   hintsLeft: number;
 
   // UI helpers
-  focusIso: ISO3 | null;        // keyboard highlight/selection
-  hintTarget: ISO3 | null;      // country to visually hint
+  focusIso: ISO3 | null;
+  hintTarget: ISO3 | null;
+
+  // modes/timer
+  mode: GameMode;
+  timeLeft: number | null;
+  _timer?: number | null;
 
   // actions
+  setMode: (mode: GameMode) => void;
   setStartTarget: (start: ISO3, target: ISO3) => void;
+  randomiseRoute: () => void;
   moveTo: (iso3: ISO3) => void;
   setFocus: (iso3: ISO3 | null) => void;
   setHintTarget: (iso3: ISO3 | null) => void;
   useHint: () => void;
+  startTimerIfNeeded: () => void;
+  stopTimer: () => void;
   reset: () => void;
 };
 
@@ -39,6 +47,19 @@ export const useGame = create<GameState>()(
       focusIso: null,
       hintTarget: null,
 
+      mode: "World",
+      timeLeft: null,
+      _timer: null,
+
+      setMode: (mode) => {
+        const wasTT = get().mode === "Time Trial";
+        set({ mode });
+        if (mode !== "Time Trial" && wasTT) {
+          get().stopTimer();
+          set({ timeLeft: null });
+        }
+      },
+
       setStartTarget: (start, target) =>
         set(() => ({
           start,
@@ -49,7 +70,20 @@ export const useGame = create<GameState>()(
           hintsLeft: 3,
           focusIso: start,
           hintTarget: null,
+          timeLeft: get().mode === "Time Trial" ? 60 : null,
         })),
+
+      randomiseRoute: () => {
+        const pool = poolForMode(get().mode);
+        const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
+        const s = pick(pool) as ISO3;
+        let t = pick(pool) as ISO3;
+        if (t === s) {
+          const filtered = pool.filter((x) => x !== s);
+          t = pick(filtered) as ISO3;
+        }
+        get().setStartTarget(s, t);
+      },
 
       moveTo: (iso3) =>
         set((s) => {
@@ -65,11 +99,34 @@ export const useGame = create<GameState>()(
 
       setFocus: (iso3) => set(() => ({ focusIso: iso3 })),
       setHintTarget: (iso3) => set(() => ({ hintTarget: iso3 })),
+      useHint: () => set((s) => ({ hintsLeft: Math.max(0, s.hintsLeft - 1) })),
 
-      useHint: () =>
-        set((s) => ({ hintsLeft: Math.max(0, s.hintsLeft - 1) })),
+      startTimerIfNeeded: () => {
+        const s = get();
+        if (s.mode !== "Time Trial" || s._timer) return;
+        const id = window.setInterval(() => {
+          const { timeLeft } = get();
+          if (timeLeft === null) return;
+          if (timeLeft <= 1) {
+            window.clearInterval(get()._timer!);
+            set({ _timer: null, timeLeft: 0 });
+            return;
+          }
+          set({ timeLeft: timeLeft - 1 });
+        }, 1000);
+        set({ _timer: id });
+      },
 
-      reset: () =>
+      stopTimer: () => {
+        const id = get()._timer;
+        if (id) {
+          window.clearInterval(id);
+          set({ _timer: null });
+        }
+      },
+
+      reset: () => {
+        get().stopTimer();
         set(() => ({
           start: null,
           target: null,
@@ -79,14 +136,16 @@ export const useGame = create<GameState>()(
           hintsLeft: 3,
           focusIso: null,
           hintTarget: null,
-        })),
+          timeLeft: get().mode === "Time Trial" ? 60 : null,
+        }));
+      },
     }),
     {
       name: "border-hop",
-      // Sets aren’t serialisable; store arrays and rehydrate to Set.
       partialize: (s) => ({
         ...s,
         visited: Array.from(s.visited),
+        _timer: null,
       }),
       onRehydrateStorage: () => (state) => {
         if (state && Array.isArray((state as any).visited)) {
