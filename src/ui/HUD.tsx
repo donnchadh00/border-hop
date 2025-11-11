@@ -6,8 +6,6 @@ import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
 
 const NB = neighbours as Record<string, readonly string[]>;
-const ISO = Object.keys(NB) as readonly string[];
-const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
 
 export default function HUD() {
   const {
@@ -18,7 +16,6 @@ export default function HUD() {
     moves,
     hintsLeft,
     useHint,
-    setStartTarget,
     setHintTarget,
     hintTarget,
     reset,
