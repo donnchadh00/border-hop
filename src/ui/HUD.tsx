@@ -24,13 +24,13 @@ export default function HUD() {
     reset,
     mode,
     setMode,
+    randomiseReachableRoute,
+    startTimerIfNeeded 
   } = useGame();
 
   const onStart = () => {
-    const s = pick(ISO) as any;
-    let t = pick(ISO) as any;
-    if (t === s) t = pick(ISO.filter((x) => x !== s)) as any;
-    setStartTarget(s, t);
+    randomiseReachableRoute(2);     // e.g., require at least 2 hops
+    startTimerIfNeeded();           // no-op unless Time Trial
   };
 
   const shortest = start && target ? bfsShortestPath(NB, start, target) : null;
