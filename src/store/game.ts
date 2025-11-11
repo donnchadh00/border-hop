@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import neighbours from "../data/neighbours.json";
 import type { GameMode, ISO3 } from "../game/modes";
 import { poolForMode } from "../game/modes";
+import { pickReachablePair } from "../game/reachability";
 
 type GameState = {
-  // core
   start: ISO3 | null;
   target: ISO3 | null;
   current: ISO3 | null;
@@ -12,19 +13,16 @@ type GameState = {
   moves: number;
   hintsLeft: number;
 
-  // UI helpers
   focusIso: ISO3 | null;
   hintTarget: ISO3 | null;
 
-  // modes/timer
   mode: GameMode;
   timeLeft: number | null;
   _timer?: number | null;
 
-  // actions
   setMode: (mode: GameMode) => void;
   setStartTarget: (start: ISO3, target: ISO3) => void;
-  randomiseRoute: () => void;
+  randomiseReachableRoute: (minHops?: number) => void;
   moveTo: (iso3: ISO3) => void;
   setFocus: (iso3: ISO3 | null) => void;
   setHintTarget: (iso3: ISO3 | null) => void;
@@ -33,6 +31,8 @@ type GameState = {
   stopTimer: () => void;
   reset: () => void;
 };
+
+const NB = neighbours as Record<string, readonly string[]>;
 
 export const useGame = create<GameState>()(
   persist(
@@ -73,28 +73,25 @@ export const useGame = create<GameState>()(
           timeLeft: get().mode === "Time Trial" ? 60 : null,
         })),
 
-      randomiseRoute: () => {
-        const pool = poolForMode(get().mode);
-        const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
-        const s = pick(pool) as ISO3;
-        let t = pick(pool) as ISO3;
-        if (t === s) {
-          const filtered = pool.filter((x) => x !== s);
-          t = pick(filtered) as ISO3;
+      randomiseReachableRoute: (minHops = 2) => {
+        const pool = poolForMode(get().mode) as readonly ISO3[];
+        const pick = pickReachablePair(NB, pool, { minHops });
+        if (pick) {
+          get().setStartTarget(pick.start as ISO3, pick.target as ISO3);
+        } else {
+          const withDegree = pool.filter((c) => (NB[c]?.length ?? 0) > 0);
+          if (withDegree.length) {
+            const s = withDegree[0] as ISO3;
+            get().setStartTarget(s, s);
+          }
         }
-        get().setStartTarget(s, t);
       },
 
       moveTo: (iso3) =>
         set((s) => {
           const nextMoves = s.current && s.current !== iso3 ? s.moves + 1 : s.moves;
           const nextVisited = new Set(s.visited).add(iso3);
-          return {
-            current: iso3,
-            visited: nextVisited,
-            moves: nextMoves,
-            focusIso: iso3,
-          };
+          return { current: iso3, visited: nextVisited, moves: nextMoves, focusIso: iso3 };
         }),
 
       setFocus: (iso3) => set(() => ({ focusIso: iso3 })),
