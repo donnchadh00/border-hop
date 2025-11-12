@@ -4,37 +4,26 @@ import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
+import type { Difficulty } from "../game/difficulty";
 
 const NB = neighbours as Record<string, readonly string[]>;
 
 export default function HUD() {
   const {
-    start,
-    target,
-    current,
-    visited,
-    moves,
-    hintsLeft,
-    useHint,
-    setHintTarget,
-    hintTarget,
-    reset,
-    mode,
-    setMode,
-    randomiseReachableRoute,
-    startTimerIfNeeded 
+    start, target, current, visited, moves,
+    hintsLeft, useHint, setHintTarget, hintTarget, reset,
+    mode, setMode,
+    difficulty, setDifficulty,
+    randomiseReachableRoute, startTimerIfNeeded,
   } = useGame();
 
   const onStart = () => {
-    randomiseReachableRoute(2);     // e.g., require at least 2 hops
-    startTimerIfNeeded();           // no-op unless Time Trial
+    randomiseReachableRoute();
+    startTimerIfNeeded();
   };
 
   const shortest = start && target ? bfsShortestPath(NB, start, target) : null;
-  const nextHop =
-    shortest && current
-      ? shortest[shortest.indexOf(current) + 1]
-      : shortest?.[0];
+  const nextHop = shortest && current ? shortest[shortest.indexOf(current) + 1] : shortest?.[0];
 
   const onHint = () => {
     if (!current || !nextHop || hintsLeft === 0) return;
@@ -42,7 +31,6 @@ export default function HUD() {
     setHintTarget(nextHop as any);
   };
 
-  // auto-clear hint glow after a short period
   useEffect(() => {
     if (!hintTarget) return;
     const id = setTimeout(() => setHintTarget(null), 1800);
@@ -61,7 +49,7 @@ export default function HUD() {
       <div className="fixed left-4 top-4 flex flex-col gap-2 bg-white/80 dark:bg-black/40 backdrop-blur p-3 rounded-xl shadow">
         <div className="font-semibold">Border Hop</div>
 
-        {/* Mode selector */}
+        {/* Mode & Difficulty */}
         <div className="flex items-center gap-2 text-sm">
           <label className="opacity-80">Mode:</label>
           <select
@@ -74,7 +62,20 @@ export default function HUD() {
             <option>Time Trial</option>
             <option>Outline</option>
           </select>
+
+          <label className="opacity-80 ml-3">Difficulty:</label>
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            className="border rounded px-2 py-1 bg-white/70 dark:bg-slate-800"
+          >
+            <option>Easy</option>
+            <option>Normal</option>
+            <option>Hard</option>
+            <option>Extreme</option>
+          </select>
         </div>
+
         {mode === "Outline" && (
           <div className="text-xs opacity-70">
             Only start/end outlines are shown. Guessed countries will fill in.
@@ -82,34 +83,21 @@ export default function HUD() {
         )}
 
         <div className="text-sm opacity-80">
-          {start ? (
-            <>
-              From <b>{start}</b> to <b>{target}</b>
-            </>
-          ) : (
-            "Click start to pick a random route"
-          )}
+          {start ? <>From <b>{start}</b> to <b>{target}</b></> : "Click start to pick a random route"}
         </div>
 
         <div className="flex gap-2">
-          <button
-            onClick={onStart}
-            className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black"
-          >
+          <button onClick={onStart} className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black">
             Start
           </button>
-          <button
-            onClick={onHint}
-            disabled={!shortest || !current || hintsLeft === 0}
-            className="px-3 py-1 rounded-lg border disabled:opacity-50"
-          >
+          <button onClick={onHint} disabled={!shortest || !current || hintsLeft === 0}
+                  className="px-3 py-1 rounded-lg border disabled:opacity-50">
             Hint ({hintsLeft})
           </button>
         </div>
 
         <div className="text-xs">
-          Current: <b>{current ?? "-"}</b> · Moves: <b>{moves}</b> · Visited:{" "}
-          {Array.from(visited).join(", ") || "-"}
+          Current: <b>{current ?? "-"}</b> · Moves: <b>{moves}</b> · Visited: {Array.from(visited).join(", ") || "-"}
         </div>
         <div className="text-xs">
           Shortest: {shortest ? shortest.join(" → ") : "-"}
@@ -128,10 +116,7 @@ export default function HUD() {
               Path from <b>{start}</b> to <b>{target}</b> in <b>{moves}</b> moves.
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={playAgain}
-                className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black"
-              >
+              <button onClick={playAgain} className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black">
                 Play again
               </button>
               <button onClick={reset} className="px-4 py-2 rounded-lg border">
