@@ -5,6 +5,7 @@ import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
+import { useCountryNames } from "../lib/useCountryNames";
 
 const NB = neighbours as Record<string, readonly string[]>;
 
@@ -16,6 +17,8 @@ export default function HUD() {
     difficulty, setDifficulty,
     randomiseReachableRoute, startTimerIfNeeded,
   } = useGame();
+
+  const { nameOf } = useCountryNames("/countries.geojson");
 
   const onStart = () => {
     randomiseReachableRoute();
@@ -83,7 +86,7 @@ export default function HUD() {
         )}
 
         <div className="text-sm opacity-80">
-          {start ? <>From <b>{start}</b> to <b>{target}</b></> : "Click start to pick a random route"}
+          {start ? <>From <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b></> : "Click start to pick a random route"}
         </div>
 
         <div className="flex gap-2">
@@ -97,7 +100,8 @@ export default function HUD() {
         </div>
 
         <div className="text-xs">
-          Current: <b>{current ?? "-"}</b> · Moves: <b>{moves}</b> · Visited: {Array.from(visited).join(", ") || "-"}
+          Current: <b>{nameOf(current)}</b> · Moves: <b>{moves}</b> · Visited:{" "}
+          {Array.from(visited).map((iso) => nameOf(iso)).join(", ") || "-"}
         </div>
         <div className="text-xs">
           Shortest: {shortest ? shortest.join(" → ") : "-"}
