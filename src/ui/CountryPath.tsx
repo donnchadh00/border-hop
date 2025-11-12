@@ -94,7 +94,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
       vectorEffect="non-scaling-stroke"
       shapeRendering="optimizeSpeed"
     >
-      <title>{`${iso3 ?? "?"} ${name ?? ""}`.trim()}</title>
+      <title>{`${name ?? ""} (${iso3 ?? "?"})`.trim()}</title>
     </path>
   );
 }

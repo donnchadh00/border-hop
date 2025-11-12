@@ -4,8 +4,11 @@ import neighbours from "../data/neighbours.json";
 import type { GameMode, ISO3 } from "../game/modes";
 import { poolForMode } from "../game/modes";
 import { pickReachablePair } from "../game/reachability";
+import type { Difficulty } from "../game/difficulty";
+import { paramsForDifficulty } from "../game/difficulty";
 
 type GameState = {
+  // core
   start: ISO3 | null;
   target: ISO3 | null;
   current: ISO3 | null;
@@ -13,16 +16,23 @@ type GameState = {
   moves: number;
   hintsLeft: number;
 
+  // UI helpers
   focusIso: ISO3 | null;
   hintTarget: ISO3 | null;
 
+  // modes/timer
   mode: GameMode;
   timeLeft: number | null;
   _timer?: number | null;
 
+  // difficulty
+  difficulty: Difficulty;
+
+  // actions
   setMode: (mode: GameMode) => void;
+  setDifficulty: (d: Difficulty) => void;
   setStartTarget: (start: ISO3, target: ISO3) => void;
-  randomiseReachableRoute: (minHops?: number) => void;
+  randomiseReachableRoute: () => void;
   moveTo: (iso3: ISO3) => void;
   setFocus: (iso3: ISO3 | null) => void;
   setHintTarget: (iso3: ISO3 | null) => void;
@@ -51,6 +61,8 @@ export const useGame = create<GameState>()(
       timeLeft: null,
       _timer: null,
 
+      difficulty: "Normal",
+
       setMode: (mode) => {
         const wasTT = get().mode === "Time Trial";
         set({ mode });
@@ -59,6 +71,8 @@ export const useGame = create<GameState>()(
           set({ timeLeft: null });
         }
       },
+
+      setDifficulty: (d) => set({ difficulty: d }),
 
       setStartTarget: (start, target) =>
         set(() => ({
@@ -73,17 +87,15 @@ export const useGame = create<GameState>()(
           timeLeft: get().mode === "Time Trial" ? 60 : null,
         })),
 
-      randomiseReachableRoute: (minHops = 2) => {
+      randomiseReachableRoute: () => {
         const pool = poolForMode(get().mode) as readonly ISO3[];
-        const pick = pickReachablePair(NB, pool, { minHops });
+        const { minHops, maxHops } = paramsForDifficulty(get().difficulty);
+        const pick = pickReachablePair(NB, pool, { minHops, maxHops });
         if (pick) {
           get().setStartTarget(pick.start as ISO3, pick.target as ISO3);
         } else {
-          const withDegree = pool.filter((c) => (NB[c]?.length ?? 0) > 0);
-          if (withDegree.length) {
-            const s = withDegree[0] as ISO3;
-            get().setStartTarget(s, s);
-          }
+          const s = pool[0] as ISO3;
+          get().setStartTarget(s, s);
         }
       },
 
