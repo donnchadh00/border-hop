@@ -5,7 +5,9 @@ import type { GameMode, ISO3 } from "../game/modes";
 import { poolForMode } from "../game/modes";
 import { pickReachablePair } from "../game/reachability";
 import type { Difficulty } from "../game/difficulty";
-import { paramsForDifficulty } from "../game/difficulty";
+import { paramsForDifficulty, attemptBudgetFor } from "../game/difficulty";
+
+const NB = neighbours as Record<string, readonly string[]>;
 
 type GameState = {
   // core
@@ -15,6 +17,10 @@ type GameState = {
   visited: Set<ISO3>;
   moves: number;
   hintsLeft: number;
+
+  // attempts / fail state
+  maxMoves: number | null;
+  failed: boolean;
 
   // UI helpers
   focusIso: ISO3 | null;
@@ -27,22 +33,23 @@ type GameState = {
 
   // difficulty
   difficulty: Difficulty;
+  lastPickFailed: boolean;
+  lastPickMessage: string | null;
 
   // actions
   setMode: (mode: GameMode) => void;
   setDifficulty: (d: Difficulty) => void;
   setStartTarget: (start: ISO3, target: ISO3) => void;
-  randomiseReachableRoute: () => void;
+  randomiseReachableRoute: () => boolean;
   moveTo: (iso3: ISO3) => void;
   setFocus: (iso3: ISO3 | null) => void;
   setHintTarget: (iso3: ISO3 | null) => void;
   useHint: () => void;
   startTimerIfNeeded: () => void;
   stopTimer: () => void;
+  clearPickStatus: () => void;
   reset: () => void;
 };
-
-const NB = neighbours as Record<string, readonly string[]>;
 
 export const useGame = create<GameState>()(
   persist(
@@ -54,6 +61,9 @@ export const useGame = create<GameState>()(
       moves: 0,
       hintsLeft: 3,
 
+      maxMoves: null,
+      failed: false,
+
       focusIso: null,
       hintTarget: null,
 
@@ -62,6 +72,9 @@ export const useGame = create<GameState>()(
       _timer: null,
 
       difficulty: "Normal",
+
+      lastPickFailed: false,
+      lastPickMessage: null,
 
       setMode: (mode) => {
         const wasTT = get().mode === "Time Trial";
@@ -75,53 +88,107 @@ export const useGame = create<GameState>()(
       setDifficulty: (d) => set({ difficulty: d }),
 
       setStartTarget: (start, target) =>
-        set(() => ({
-          start,
-          target,
-          current: start,
-          visited: new Set([start]),
-          moves: 0,
-          hintsLeft: 3,
-          focusIso: start,
-          hintTarget: null,
-          timeLeft: get().mode === "Time Trial" ? 60 : null,
-        })),
+        set(() => {
+          const { maxHops } = paramsForDifficulty(get().difficulty);
+          const hopCap = Number.isFinite(maxHops)
+            ? (maxHops as number)
+            : null;
+
+          return {
+            start,
+            target,
+            current: start,
+            visited: new Set([start]),
+            moves: 0,
+            hintsLeft: 3,
+            focusIso: start,
+            hintTarget: null,
+            timeLeft: get().mode === "Time Trial" ? 60 : null,
+            maxMoves: hopCap,
+            failed: false,
+          };
+        }),
 
       randomiseReachableRoute: () => {
-        const pool = poolForMode(get().mode) as readonly ISO3[];
-        const { minHops, maxHops } = paramsForDifficulty(get().difficulty);
-        const pick = pickReachablePair(NB, pool, { minHops, maxHops });
+        const state = get();
+        const pool = poolForMode(state.mode) as readonly ISO3[];
+        const { minHops, maxHops } = paramsForDifficulty(state.difficulty);
+        const maxAttempts = attemptBudgetFor(
+          state.difficulty,
+          minHops,
+          pool.length
+        );
+
+        const pick = pickReachablePair(NB, pool, {
+          minHops,
+          maxHops,
+          maxAttempts,
+        });
+
         if (pick) {
-          get().setStartTarget(pick.start as ISO3, pick.target as ISO3);
-        } else {
-          const s = pool[0] as ISO3;
-          get().setStartTarget(s, s);
+          state.setStartTarget(pick.start as ISO3, pick.target as ISO3);
+          set({ lastPickFailed: false, lastPickMessage: null });
+          return true;
         }
+
+        set({
+          lastPickFailed: true,
+          lastPickMessage:
+            `No route found within constraints (min ${minHops} hops` +
+            `${Number.isFinite(maxHops) ? `, max ${maxHops} hops` : ""}; ` +
+            `tried ${maxAttempts} pairs). Try an easier difficulty or lower min hops.`,
+        });
+        return false;
       },
 
       moveTo: (iso3) =>
         set((s) => {
-          const nextMoves = s.current && s.current !== iso3 ? s.moves + 1 : s.moves;
+          if (s.failed) return s;
+
+          const isNewMove = s.current && s.current !== iso3;
+
+          const nextMoves = isNewMove ? s.moves + 1 : s.moves;
+
+          let failed: boolean = s.failed;
+
+          if (isNewMove && s.maxMoves != null) {
+            const movesUsed = nextMoves;
+
+            if (movesUsed >= s.maxMoves && iso3 !== s.target) {
+              failed = true;
+            }
+          }
+
           const nextVisited = new Set(s.visited).add(iso3);
-          return { current: iso3, visited: nextVisited, moves: nextMoves, focusIso: iso3 };
+
+          return {
+            current: iso3,
+            visited: nextVisited,
+            moves: nextMoves,
+            failed,
+            focusIso: iso3,
+          };
         }),
 
-      setFocus: (iso3) => set(() => ({ focusIso: iso3 })),
-      setHintTarget: (iso3) => set(() => ({ hintTarget: iso3 })),
-      useHint: () => set((s) => ({ hintsLeft: Math.max(0, s.hintsLeft - 1) })),
+      setFocus: (iso3) => set({ focusIso: iso3 }),
+
+      setHintTarget: (iso3) => set({ hintTarget: iso3 }),
+
+      useHint: () =>
+        set((s) => ({ hintsLeft: Math.max(0, s.hintsLeft - 1) })),
 
       startTimerIfNeeded: () => {
         const s = get();
         if (s.mode !== "Time Trial" || s._timer) return;
         const id = window.setInterval(() => {
-          const { timeLeft } = get();
-          if (timeLeft === null) return;
-          if (timeLeft <= 1) {
+          const tl = get().timeLeft;
+          if (tl == null) return;
+          if (tl <= 1) {
             window.clearInterval(get()._timer!);
             set({ _timer: null, timeLeft: 0 });
             return;
           }
-          set({ timeLeft: timeLeft - 1 });
+          set({ timeLeft: tl - 1 });
         }, 1000);
         set({ _timer: id });
       },
@@ -134,6 +201,9 @@ export const useGame = create<GameState>()(
         }
       },
 
+      clearPickStatus: () =>
+        set({ lastPickFailed: false, lastPickMessage: null }),
+
       reset: () => {
         get().stopTimer();
         set(() => ({
@@ -143,9 +213,13 @@ export const useGame = create<GameState>()(
           visited: new Set<ISO3>(),
           moves: 0,
           hintsLeft: 3,
+          maxMoves: null,
+          failed: false,
           focusIso: null,
           hintTarget: null,
           timeLeft: get().mode === "Time Trial" ? 60 : null,
+          lastPickFailed: false,
+          lastPickMessage: null,
         }));
       },
     }),
@@ -155,6 +229,8 @@ export const useGame = create<GameState>()(
         ...s,
         visited: Array.from(s.visited),
         _timer: null,
+        lastPickFailed: false,
+        lastPickMessage: null,
       }),
       onRehydrateStorage: () => (state) => {
         if (state && Array.isArray((state as any).visited)) {
