@@ -9,6 +9,18 @@ import { useCountryNames } from "../lib/useCountryNames";
 
 const NB = neighbours as Record<string, readonly string[]>;
 
+const isWinningPosition = (
+  currentIso: string | null,
+  targetIso: string | null
+) => {
+  if (!currentIso || !targetIso) return false;
+
+  if (currentIso === targetIso) return true;
+
+  const neighboursOfTarget = NB[targetIso] ?? [];
+  return neighboursOfTarget.includes(currentIso);
+}
+
 export default function HUD() {
   const {
     start,
@@ -90,7 +102,7 @@ export default function HUD() {
     return () => clearTimeout(id);
   }, [hintTarget, setHintTarget]);
 
-  const won = !!current && !!target && current === target;
+  const won = isWinningPosition(current, target);
   const lost = failed && !won;
 
   const playAgain = () => {
