@@ -6,8 +6,17 @@ import { neighbors as topoNeighbors } from "topojson-client";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const INPUT = path.resolve(__dirname, "../public/countries.geojson");
-const OUTPUT = path.resolve(__dirname, "../src/data/neighbours.json");
+const inputArg = process.argv[2] ?? "../public/countries.geojson";
+const INPUT = path.resolve(__dirname, inputArg);
+
+const inputBase = path.basename(INPUT);
+const baseName = inputBase
+  .replace(/\.geo\.json$/i, "")
+  .replace(/\.geojson$/i, "")
+  .replace(/\.json$/i, "");
+
+const OUTPUT = path.resolve(__dirname, `../src/data/${baseName}.json`);
+
 const OBJ = "countries";
 
 const geo = JSON.parse(fs.readFileSync(INPUT, "utf-8"));
@@ -64,4 +73,4 @@ for (const [a, list] of Object.entries(neighbours)) {
 // Save
 fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
 fs.writeFileSync(OUTPUT, JSON.stringify(neighbours, null, 2));
-console.log(`Wrote ${OUTPUT} (${Object.keys(neighbours).length} countries)`);
+console.log(`From ${INPUT} wrote ${OUTPUT} (${Object.keys(neighbours).length} countries)`);
