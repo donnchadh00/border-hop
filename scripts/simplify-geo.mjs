@@ -8,8 +8,17 @@ import { presimplify, simplify, quantile } from "topojson-simplify";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const IN = path.resolve(__dirname, "../public/countries.geojson");
-const OUT = path.resolve(__dirname, "../public/countries.simplified.geojson");
+const inputArg = process.argv[2] ?? "../public/countries.geojson";
+const IN = path.resolve(__dirname, inputArg);
+
+const inputBase = path.basename(IN);
+const baseName = inputBase
+  .replace(/\.geo\.json$/i, "")
+  .replace(/\.geojson$/i, "")
+  .replace(/\.json$/i, "");
+
+const OUT = path.resolve(__dirname, `../public/${baseName}.simplified.geojson`);
+
 const OBJECT_NAME = "countries";
 
 const fc = JSON.parse(fs.readFileSync(IN, "utf-8"));
@@ -19,4 +28,4 @@ const threshold = quantile(topo, 0.05);
 topo = simplify(topo, threshold);
 const simplifiedFC = feature(topo, topo.objects[OBJECT_NAME]);
 fs.writeFileSync(OUT, JSON.stringify(simplifiedFC));
-console.log(`Wrote ${OUT}`);
+console.log(`From ${IN} wrote ${OUT}`);
