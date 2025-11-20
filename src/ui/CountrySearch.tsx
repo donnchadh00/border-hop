@@ -19,9 +19,11 @@ function normalise(s: string) {
 export default function CountrySearch({
   source = "/countries.geojson",
   placeholder = "Type a country…",
+  allowedIso3,
 }: {
   source?: string;
   placeholder?: string;
+  allowedIso3?: readonly string[];
 }) {
   const { moveTo } = useGame();
   const [all, setAll] = useState<Country[]>([]);
@@ -36,9 +38,17 @@ export default function CountrySearch({
       .then((fc: FC) => {
         const seen = new Set<string>();
         const rows: Country[] = [];
+
+        const allowedSet = allowedIso3
+          ? new Set(allowedIso3.map((c) => c.toUpperCase()))
+          : null;
+
         for (const f of fc.features as F[]) {
           const iso3 = isoFrom(f.properties, f.id);
           if (!iso3 || seen.has(iso3)) continue;
+
+          if (allowedSet && !allowedSet.has(iso3.toUpperCase())) continue;
+
           seen.add(iso3);
           rows.push({ iso3, name: nameFrom(f.properties) || iso3 });
         }
@@ -46,7 +56,7 @@ export default function CountrySearch({
         setAll(rows);
       })
       .catch((e) => console.error("Failed to load countries for search:", e));
-  }, [source]);
+  }, [source, allowedIso3]);
 
   const filtered = useMemo(() => {
     if (!q) return all.slice(0, 50);

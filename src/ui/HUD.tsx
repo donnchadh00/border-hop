@@ -4,6 +4,7 @@ import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
+import { EUROPE } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
 import { useCountryNames } from "../lib/useCountryNames";
 
@@ -52,6 +53,11 @@ export default function HUD() {
   const overCap = hopCap != null ? hopsUsed >= hopCap : false;
   const hopsLeft = hopCap != null ? Math.max(0, hopCap - hopsUsed) : Infinity;
   const nearCap = hopCap != null ? !overCap && hopsLeft <= 2 : false;
+
+  const allowedIso3 =
+  mode === "Europe"
+    ? EUROPE
+    : undefined;
 
   const pct =
     hopCap != null
@@ -251,7 +257,10 @@ export default function HUD() {
         </div>
 
         <div>
-          <CountrySearch source="/countries.geojson" />
+          <CountrySearch 
+            source="/countries.geojson"
+            allowedIso3={allowedIso3}
+          />
         </div>
       </div>
 

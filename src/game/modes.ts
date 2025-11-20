@@ -19,3 +19,9 @@ export function poolForMode(mode: GameMode): readonly ISO3[] {
 export function isOutlineMode(mode: GameMode) {
   return mode === "Outline";
 }
+
+export function allowedIso3ForMode(mode: GameMode): readonly ISO3[] {
+  return mode === "Europe"
+    ? EUROPE
+    : (Object.keys(neighbours) as ISO3[]);
+}
