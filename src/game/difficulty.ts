@@ -4,7 +4,7 @@ export const DIFFICULTY_PRESETS: Record<
   Difficulty,
   { minHops: number; maxHops: number }
 > = {
-  Easy:    { minHops: 1, maxHops: 4 },
+  Easy:    { minHops: 2, maxHops: 4 },
   Normal:  { minHops: 2, maxHops: 7 },
   Hard:    { minHops: 3, maxHops: 12 },
   Extreme: { minHops: 5, maxHops: 24 },
