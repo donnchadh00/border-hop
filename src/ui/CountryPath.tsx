@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import neighbours from "../data/neighbours.json";
 import { useGame } from "../store/game";
+import { isOutlineMode } from "../game/modes";
 
 type Props = {
   d: string | undefined;
@@ -27,7 +28,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
     !!iso3 &&
     (!current || (nbMap[current]?.includes(iso3)));
 
-  const outlineMode = mode === "Outline";
+  const outlineMode = isOutlineMode(mode);
 
   const shouldHide =
     outlineMode &&

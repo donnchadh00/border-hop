@@ -17,7 +17,7 @@ export function poolForMode(mode: GameMode): readonly ISO3[] {
 }
 
 export function isOutlineMode(mode: GameMode) {
-  return mode === "Outline";
+  return mode === "Outline" || mode === "Europe";
 }
 
 export function allowedIso3ForMode(mode: GameMode): readonly ISO3[] {

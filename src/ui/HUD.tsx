@@ -4,7 +4,7 @@ import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
-import { EUROPE } from "../game/modes";
+import { EUROPE, isOutlineMode } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
 import { useCountryNames } from "../lib/useCountryNames";
 
@@ -214,7 +214,7 @@ export default function HUD() {
           </div>
         )}
 
-        {mode === "Outline" && (
+        {isOutlineMode(mode) && (
           <div className="text-xs opacity-70">
             Only start/end outlines are shown. Guessed countries will fill in.
           </div>
