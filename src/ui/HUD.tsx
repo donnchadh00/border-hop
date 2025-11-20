@@ -270,7 +270,7 @@ export default function HUD() {
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)]">
             <div className="text-xl font-semibold mb-2">You made it!</div>
             <div className="opacity-80 mb-4">
-              Path from <b>{start}</b> to <b>{target}</b> in <b>{moves}</b>{" "}
+              Path from <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b> in <b>{moves+1}</b>{" "}
               moves.
             </div>
             <div className="flex gap-2">
