@@ -17,6 +17,7 @@ type GameState = {
   visited: Set<ISO3>;
   moves: number;
   hintsLeft: number;
+  dupGuessIso: ISO3 | null;
 
   // attempts / fail state
   maxMoves: number | null;
@@ -49,6 +50,7 @@ type GameState = {
   stopTimer: () => void;
   clearPickStatus: () => void;
   reset: () => void;
+  clearDupGuess: () => void;
 };
 
 export const useGame = create<GameState>()(
@@ -60,6 +62,7 @@ export const useGame = create<GameState>()(
       visited: new Set<ISO3>(),
       moves: 0,
       hintsLeft: 3,
+      dupGuessIso: null,
 
       maxMoves: null,
       failed: false,
@@ -145,6 +148,15 @@ export const useGame = create<GameState>()(
         set((s) => {
           if (s.failed) return s;
 
+          if (s.visited.has(iso3)) {
+            return {
+              ...s,
+              current: iso3,
+              focusIso: iso3,
+              dupGuessIso: iso3,
+            }
+          }
+
           const isNewMove = s.current && s.current !== iso3;
 
           const nextMoves = isNewMove ? s.moves + 1 : s.moves;
@@ -176,6 +188,8 @@ export const useGame = create<GameState>()(
 
       useHint: () =>
         set((s) => ({ hintsLeft: Math.max(0, s.hintsLeft - 1) })),
+
+      clearDupGuess: () => set({ dupGuessIso: null }),
 
       startTimerIfNeeded: () => {
         const s = get();
@@ -217,6 +231,7 @@ export const useGame = create<GameState>()(
           failed: false,
           focusIso: null,
           hintTarget: null,
+          dupGuessIso: null,
           timeLeft: get().mode === "Time Trial" ? 60 : null,
           lastPickFailed: false,
           lastPickMessage: null,
@@ -231,6 +246,7 @@ export const useGame = create<GameState>()(
         _timer: null,
         lastPickFailed: false,
         lastPickMessage: null,
+        dupGuessIso: null,
       }),
       onRehydrateStorage: () => (state) => {
         if (state && Array.isArray((state as any).visited)) {
