@@ -90,6 +90,12 @@ export default function HUD() {
     setHintTarget(nextHop as any);
   };
 
+  const onDifficultyChange = (d: Difficulty) => {
+    setDifficulty(d);
+    clearPickStatus();
+    onStart();
+  }
+
   const relaxDifficulty = () => {
     setDifficulty("Easy" as Difficulty);
     clearPickStatus();
@@ -138,7 +144,7 @@ export default function HUD() {
           <label className="opacity-80 ml-3">Difficulty:</label>
           <select
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
             className="border rounded px-2 py-1 bg-white/70 dark:bg-slate-800"
           >
             <option>Easy</option>
