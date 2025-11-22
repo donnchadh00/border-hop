@@ -45,6 +45,8 @@ export default function HUD() {
     clearPickStatus,
     maxMoves,
     failed,
+    dupGuessIso,
+    clearDupGuess,
   } = useGame();
 
   const hopCap = maxMoves;
@@ -113,6 +115,12 @@ export default function HUD() {
     const id = setTimeout(() => setHintTarget(null), 1800);
     return () => clearTimeout(id);
   }, [hintTarget, setHintTarget]);
+
+  useEffect(() => {
+    if (!dupGuessIso) return;
+    const id = setTimeout(() => clearDupGuess(), 1500);
+    return () => clearTimeout(id);
+  }, [dupGuessIso, clearDupGuess]);
 
   const won = isWinningPosition(current, target);
   const lost = failed && !won;
@@ -191,6 +199,15 @@ export default function HUD() {
             </div>
           )}
         </div>
+
+        {dupGuessIso && (
+          <div className="text-xs mt-1 p-2 rounded-lg bg-sky-100 text-sky-800 border border-sky-300">
+            <div className="font-medium mb-0.5">Already guessed</div>
+            <div className="opacity-90">
+              You’ve already visited <b>{nameOf(dupGuessIso)}</b>.
+            </div>
+          </div>
+        )}
 
         {/* Failure toast for route picking */}
         {lastPickFailed && (
