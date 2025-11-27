@@ -10,16 +10,46 @@ import { useCountryNames } from "../lib/useCountryNames";
 
 const NB = neighbours as Record<string, readonly string[]>;
 
-const isWinningPosition = (
-  currentIso: string | null,
-  targetIso: string | null
-) => {
-  if (!currentIso || !targetIso) return false;
+function isWinningPosition(
+  startIso: string | null,
+  targetIso: string | null,
+  visited: Set<string>
+): boolean {
+  if (!startIso || !targetIso) return false;
+  if (!visited.has(startIso)) return false;
 
-  if (currentIso === targetIso) return true;
+  const candidates: string[] = [];
+  if (visited.has(targetIso)) candidates.push(targetIso);
 
   const neighboursOfTarget = NB[targetIso] ?? [];
-  return neighboursOfTarget.includes(currentIso);
+  for (const nb of neighboursOfTarget) {
+    if (visited.has(nb)) candidates.push(nb);
+  }
+
+  if (candidates.length === 0) return false;
+
+  const bfsWithinVisited = (goal: string): boolean => {
+    const queue: string[] = [startIso];
+    const seen = new Set<string>([startIso]);
+
+    while (queue.length) {
+      const cur = queue.shift()!;
+      if (cur === goal) return true;
+
+      for (const nb of NB[cur] ?? []) {
+        if (!visited.has(nb) || seen.has(nb)) continue;
+        seen.add(nb);
+        queue.push(nb);
+      }
+    }
+    return false;
+  };
+
+  for (const end of candidates) {
+    if (bfsWithinVisited(end)) return true;
+  }
+
+  return false;
 }
 
 export default function HUD() {
@@ -124,7 +154,9 @@ export default function HUD() {
     return () => clearTimeout(id);
   }, [dupGuessIso, clearDupGuess]);
 
-  const won = isWinningPosition(current, target);
+  const won =
+    !!start && !!target &&
+    isWinningPosition(start, target, visited);
   const lost = failed && !won;
 
   const playAgain = () => {
