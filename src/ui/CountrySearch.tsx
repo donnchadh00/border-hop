@@ -110,7 +110,7 @@ export default function CountrySearch({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 relative">
       <label className="text-sm opacity-80">Jump to any country</label>
       <input
         ref={inputRef}
@@ -127,7 +127,7 @@ export default function CountrySearch({
         <ul
           id="country-suggest"
           ref={listRef}
-          className="max-h-60 overflow-auto rounded-lg border bg-white dark:bg-slate-900 shadow"
+          className="absolute left-0 right-0 top-full mt-1 max-h-60 overflow-auto rounded-lg border bg-white dark:bg-slate-900 shadow z-50"
           role="listbox"
         >
           {filtered.length ? (
@@ -136,9 +136,14 @@ export default function CountrySearch({
                 key={c.iso3}
                 role="option"
                 aria-selected={i === active}
-                onMouseDown={(e) => { e.preventDefault(); tryMove(c.iso3); }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  tryMove(c.iso3);
+                }}
                 onMouseEnter={() => setActive(i)}
-                className={`px-3 py-2 cursor-pointer ${i === active ? "bg-slate-100 dark:bg-slate-800" : ""}`}
+                className={`px-3 py-2 cursor-pointer ${
+                  i === active ? "bg-slate-100 dark:bg-slate-800" : ""
+                }`}
               >
                 <span className="font-medium">{c.name}</span>
                 <span className="opacity-60 ml-2 text-xs">{c.iso3}</span>
