@@ -134,171 +134,199 @@ export default function HUD() {
 
   return (
     <>
-      <div className="fixed left-4 top-4 flex flex-col gap-2 bg-white/80 dark:bg-black/40 backdrop-blur p-3 rounded-xl shadow">
-        <div className="font-semibold">Border Hop</div>
+      {/* Top HUD bar */}
+      <div className="fixed inset-x-0 top-0 z-40">
+        <div className="h-full w-full bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200/70 dark:border-slate-800 shadow-sm flex justify-center">
+          <div className="h-full w-full max-w-6xl px-4 py-2 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4 text-sm">
+              {/* Title */}
+              <div className="font-semibold text-base tracking-tight">
+                Border Hop
+              </div>
 
-        {/* Mode & Difficulty */}
-        <div className="flex items-center gap-2 text-sm">
-          <label className="opacity-80">Mode:</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value as GameMode)}
-            className="border rounded px-2 py-1 bg-white/70 dark:bg-slate-800"
-          >
-            <option>World</option>
-            <option>Europe</option>
-            <option>Time Trial</option>
-            <option>Outline</option>
-          </select>
+              {/* Mode & Difficulty (dropdowns) */}
+              <div className="flex items-end gap-4 flex-wrap">
+                <div className="flex flex-col gap-0.5">
+                  <span className="uppercase tracking-wide text-slate-500">
+                    Mode
+                  </span>
+                  <select
+                    value={mode}
+                    onChange={(e) => setMode(e.target.value as GameMode)}
+                    className="min-w-[8rem] rounded-md border border-slate-300/80 bg-white/80 dark:bg-slate-900/80 px-2 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option>World</option>
+                    <option>Europe</option>
+                    <option>Time Trial</option>
+                    <option>Outline</option>
+                  </select>
+                </div>
 
-          <label className="opacity-80 ml-3">Difficulty:</label>
-          <select
-            value={difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
-            className="border rounded px-2 py-1 bg-white/70 dark:bg-slate-800"
-          >
-            <option>Easy</option>
-            <option>Normal</option>
-            <option>Hard</option>
-            <option>Extreme</option>
-          </select>
-        </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="uppercase tracking-wide text-slate-500">
+                    Difficulty
+                  </span>
+                  <select
+                    value={difficulty}
+                    onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
+                    className="min-w-[8rem] rounded-md border border-slate-300/80 bg-white/80 dark:bg-slate-900/80 px-2 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option>Easy</option>
+                    <option>Normal</option>
+                    <option>Hard</option>
+                    <option>Extreme</option>
+                  </select>
+                </div>
+              </div>
 
-        {/* Hops indicator */}
-        <div className="text-xs mt-1">
-          Hops:&nbsp;
-          <b>{hopsUsed}</b>
-          {hopCap != null ? (
-            <>
-              &nbsp;/&nbsp;<b>{hopCap}</b>
-              {nearCap && (
-                <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-200 text-amber-900">
-                  near cap
-                </span>
-              )}
-              {overCap && (
-                <span className="ml-2 px-1.5 py-0.5 rounded bg-rose-200 text-rose-900">
-                  over cap
-                </span>
-              )}
-            </>
-          ) : (
-            <> / ∞</>
-          )}
+              {/* Search bar */}
+              <div className="w-full sm:w-auto flex-shrink-0">
+                <CountrySearch
+                  source="/countries.geojson"
+                  allowedIso3={allowedIso3}
+                />
+              </div>
 
-          {hopCap != null && (
-            <div className="mt-1 h-1.5 w-56 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
-              <div
-                className={`h-full ${
-                  overCap
-                    ? "bg-rose-500"
-                    : nearCap
-                    ? "bg-amber-500"
-                    : "bg-emerald-500"
-                }`}
-                style={{ width: `${pct}%` }}
-              />
+              {/* Start / Hint buttons */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={onStart}
+                  className="px-3 py-1.5 rounded-full bg-black text-white text-xs font-medium dark:bg-white dark:text-black shadow-sm hover:opacity-90 transition"
+                >
+                  Start
+                </button>
+                <button
+                  onClick={onHint}
+                  disabled={!shortest || !current || hintsLeft === 0}
+                  className="px-3 py-1.5 rounded-full border border-slate-300/80 text-xs font-medium bg-white/80 dark:bg-slate-900/80 disabled:opacity-50 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                >
+                  Hint ({hintsLeft})
+                </button>
+              </div>
             </div>
-          )}
-        </div>
 
-        {dupGuessIso && (
-          <div className="text-xs mt-1 p-2 rounded-lg bg-sky-100 text-sky-800 border border-sky-300">
-            <div className="font-medium mb-0.5">Already guessed</div>
-            <div className="opacity-90">
-              You’ve already visited <b>{nameOf(dupGuessIso)}</b>.
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              {/* Hops indicator */}
+              <div className="min-w-[14rem]">
+                <div>
+                  Hops:&nbsp;
+                  <b>{hopsUsed}</b>
+                  {hopCap != null ? (
+                    <>
+                      &nbsp;/&nbsp;<b>{hopCap}</b>
+                      {nearCap && (
+                        <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                          near cap
+                        </span>
+                      )}
+                      {overCap && (
+                        <span className="ml-2 px-1.5 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-200">
+                          over cap
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <> / ∞</>
+                  )}
+                </div>
+
+                {hopCap != null && (
+                  <div className="mt-1 h-1.5 w-56 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                    <div
+                      className={`h-full ${
+                        overCap
+                          ? "bg-rose-500"
+                          : nearCap
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Route text */}
+              <div className="flex flex-col gap-0.5 text-[30px] sm:text-xs max-w-[20rem] sm:max-w-md">
+                <div className="opacity-80 truncate">
+                  {start ? (
+                    <>
+                      From <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b>
+                    </>
+                  ) : (
+                    "Click Start to pick a random route"
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="truncate">
+                    Current: <b>{nameOf(current)}</b> · Moves: <b>{moves}</b>
+                  </div>
+                </div>
+              </div>
+
+              <div className="truncate max-w-full sm:max-w-xl">
+                Visited:{" "}
+                {Array.from(visited)
+                  .map((iso) => nameOf(iso))
+                  .join(", ") || "-"}
+              </div>
+
+
+              {/* Toasts */}
+              <div className="flex flex-wrap items-start gap-2">
+                {dupGuessIso && (
+                  <div className="text-[11px] px-2 py-1.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200 shadow-sm">
+                    <div className="font-medium mb-0.5">Already guessed</div>
+                    <div className="opacity-90">
+                      You’ve already visited <b>{nameOf(dupGuessIso)}</b>.
+                    </div>
+                  </div>
+                )}
+
+                {lastPickFailed && (
+                  <div className="text-[11px] max-w-xs px-2 py-1.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 shadow-sm">
+                    <div className="font-medium mb-0.5">Couldn’t find a route</div>
+                    <div className="opacity-90 mb-1">{lastPickMessage}</div>
+                    <div className="flex gap-1 flex-wrap">
+                      <button
+                        onClick={relaxDifficulty}
+                        className="px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                      >
+                        Try easier
+                      </button>
+                      <button
+                        onClick={allowShorterPaths}
+                        className="px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                      >
+                        Allow shorter paths
+                      </button>
+                      <button
+                        onClick={clearPickStatus}
+                        className="ml-auto px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Failure toast for route picking */}
-        {lastPickFailed && (
-          <div className="text-xs p-2 rounded-lg bg-amber-100 text-amber-800 border border-amber-300">
-            <div className="font-medium mb-1">Couldn’t find a route</div>
-            <div className="opacity-90 mb-2">{lastPickMessage}</div>
-            <div className="flex gap-2">
-              <button
-                onClick={relaxDifficulty}
-                className="px-2 py-1 rounded border border-amber-400 bg-white"
-              >
-                Try Easier
-              </button>
-              <button
-                onClick={allowShorterPaths}
-                className="px-2 py-1 rounded border border-amber-400 bg-white"
-              >
-                Allow Shorter Paths
-              </button>
-              <button
-                onClick={clearPickStatus}
-                className="ml-auto px-2 py-1 rounded border border-amber-400 bg-white"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        )}
-
-        {isOutlineMode(mode) && (
-          <div className="text-xs opacity-70">
-            Only start/end outlines are shown. Guessed countries will fill in.
-          </div>
-        )}
-
-        <div className="text-sm opacity-80">
-          {start ? (
-            <>
-              From <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b>
-            </>
-          ) : (
-            "Click start to pick a random route"
-          )}
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={onStart}
-            className="px-3 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black"
-          >
-            Start
-          </button>
-          <button
-            onClick={onHint}
-            disabled={!shortest || !current || hintsLeft === 0}
-            className="px-3 py-1 rounded-lg border disabled:opacity-50"
-          >
-            Hint ({hintsLeft})
-          </button>
-        </div>
-
-        <div className="text-xs">
-          Current: <b>{nameOf(current)}</b> · Moves: <b>{moves}</b> · Visited:{" "}
-          {Array.from(visited)
-            .map((iso) => nameOf(iso))
-            .join(", ") || "-"}
-        </div>
-        <div className="text-xs">
-          Shortest: {shortest ? shortest.join(" → ") : "-"}
-        </div>
-
-        <div>
-          <CountrySearch 
-            source="/countries.geojson"
-            allowedIso3={allowedIso3}
-          />
         </div>
       </div>
 
       {/* Win overlay */}
       {won && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)]">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)] max-h-[90vh] overflow-y-auto">
             <div className="text-xl font-semibold mb-2">You made it!</div>
             <div className="opacity-80 mb-4">
-              Path from <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b> in <b>{moves+1}</b>{" "} moves.
+              Path from <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b> in{" "}
+              <b>{moves}</b> moves.
               {optimalHops != null && (
                 <>
-                  {" "} (shortest path is <b>{optimalHops}</b> moves)
+                  {" "}
+                  (shortest path is <b>{optimalHops}</b> moves)
                 </>
               )}
             </div>
@@ -331,7 +359,7 @@ export default function HUD() {
       {/* Lose overlay */}
       {lost && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)]">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)] max-h-[90vh] overflow-y-auto">
             <div className="text-xl font-semibold mb-2">Out of hops!</div>
             <div className="opacity-80 mb-4">
               You used <b>{moves}</b>
