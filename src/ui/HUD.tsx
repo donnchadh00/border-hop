@@ -4,7 +4,7 @@ import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
-import { EUROPE, isOutlineMode } from "../game/modes";
+import { EUROPE } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
 import { useCountryNames } from "../lib/useCountryNames";
 
@@ -354,7 +354,7 @@ export default function HUD() {
             <div className="text-xl font-semibold mb-2">You made it!</div>
             <div className="opacity-80 mb-4">
               Path from <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b> in{" "}
-              <b>{moves}</b> moves.
+              <b>{moves + 1}</b> moves.
               {optimalHops != null && (
                 <>
                   {" "}
