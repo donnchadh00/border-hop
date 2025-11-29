@@ -123,16 +123,22 @@ export default function Map({ width = 1000, height = 600 }) {
     const cx = (x0 + x1) / 2;
     const cy = (y0 + y1) / 2;
 
+    const hudHeight = 80;
+    const effectiveHeight = Math.max(1, height - hudHeight);
+
     const padding = 0.7;
     const maxScale = 8;
 
     const scale = Math.min(
       maxScale,
-      padding * Math.min(width / dx, height / dy)
+      padding * Math.min(width / dx, effectiveHeight / dy)
     );
 
-    const translateX = width / 2 - scale * cx;
-    const translateY = height / 2 - scale * cy;
+    const visibleCenterY = hudHeight / 2 + effectiveHeight / 2;
+    const visibleCenterX = width / 2;
+
+    const translateX = visibleCenterX - scale * cx;
+    const translateY = visibleCenterY - scale * cy;
 
     const transform = `translate(${translateX},${translateY}) scale(${scale})`;
     gRef.current.setAttribute("transform", transform);
