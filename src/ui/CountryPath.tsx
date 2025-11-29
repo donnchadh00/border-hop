@@ -14,7 +14,17 @@ type Props = {
 const nbMap = neighbours as Record<string, readonly string[]>;
 
 function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
-  const { current, start, target, visited, moveTo, focusIso, setFocus, hintTarget, mode } = useGame();
+  const {
+    current,
+    start,
+    target,
+    visited,
+    moveTo,
+    focusIso,
+    setFocus,
+    hintTarget,
+    mode,
+  } = useGame();
 
   const isVisited = !!(iso3 && visited.has(iso3 as any));
   const isCurrent = iso3 === current;
@@ -24,38 +34,44 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const isTarget  = iso3 && target && iso3 === target;
 
   const canMove =
-    interactive &&
-    !!iso3 &&
-    (!current || (nbMap[current]?.includes(iso3)));
+    interactive && !!iso3 && (!current || nbMap[current]?.includes(iso3));
 
   const outlineMode = isOutlineMode(mode);
 
   const shouldHide =
-    outlineMode &&
-    !isVisited &&
-    !isCurrent &&
-    !isStart &&
-    !isTarget;
+    outlineMode && !isVisited && !isCurrent && !isStart && !isTarget;
 
+  // FILL: non-outline modes have solid land colour
   const baseFill =
-    isCurrent ? "fill-emerald-400"
-    : isVisited ? "fill-emerald-300"
-    : outlineMode
-      ? (isStart || isTarget ? "fill-transparent" : "fill-transparent")
-      : "fill-slate-300 dark:fill-slate-700";
+    isCurrent
+      ? "fill-emerald-400"
+      : isVisited
+        ? "fill-emerald-300"
+        : outlineMode
+          ? "fill-transparent"
+          : "fill-slate-300 dark:fill-slate-800";
 
-  const baseStroke =
-    outlineMode
-      ? (isStart
-          ? "stroke-blue-500"
-          : isTarget
-            ? "stroke-amber-500"
-            : "stroke-transparent")
-      : "stroke-white/70 dark:stroke-black/50";
+  // STROKE COLOUR
+  const baseStroke = outlineMode
+    ? isStart
+      ? "stroke-blue-500"
+      : isTarget
+        ? "stroke-amber-500"
+        : "stroke-transparent"
+    : // non-outline (World, Time Trial, etc.)
+      isTarget
+      ? "stroke-emerald-400"
+      : isStart
+        ? "stroke-sky-400"
+        : "stroke-slate-900";
 
-  const strokeWidth =
-    outlineMode
-      ? (isStart || isTarget ? "stroke-[1.5]" : "stroke-[0]")
+  // STROKE WIDTH
+  const strokeWidth = outlineMode
+    ? isStart || isTarget
+      ? "stroke-[1.5]"
+      : "stroke-[0]"
+    : isTarget || isStart
+      ? "stroke-[1.2]"
       : "stroke-[0.5]";
 
   return (
@@ -68,10 +84,11 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
         baseFill,
         baseStroke,
         strokeWidth,
-        "focus:outline-none transition-[filter,fill] duration-150",
+        "focus:outline-none transition-[filter,fill,stroke] duration-150",
         isFocused && interactive && "ring-2 ring-offset-2 ring-blue-500",
         isHinted && "animate-pulse drop-shadow-[0_0_0.4rem_#fde047]",
-        !outlineMode && (interactive && canMove ? "cursor-pointer hover:brightness-110" : ""),
+        !outlineMode &&
+          (interactive && canMove ? "cursor-pointer hover:brightness-110" : ""),
         shouldHide && "opacity-0 pointer-events-none"
       )}
       onClick={
@@ -102,5 +119,6 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
 
 export const CountryPath = React.memo(
   CountryPathBase,
-  (prev, next) => prev.d === next.d && prev.iso3 === next.iso3 && prev.name === next.name
+  (prev, next) =>
+    prev.d === next.d && prev.iso3 === next.iso3 && prev.name === next.name
 );
