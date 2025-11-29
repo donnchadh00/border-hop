@@ -168,24 +168,25 @@ export default function HUD() {
     <>
       {/* Top HUD bar */}
       <div className="fixed inset-x-0 top-0 z-40">
-        <div className="h-full w-full bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200/70 dark:border-slate-800 shadow-sm flex justify-center">
-          <div className="h-full w-full max-w-6xl px-4 py-2 flex flex-col gap-2">
+        <div className="hud-bar h-full w-full flex justify-center">
+          <div className="hud-inner h-full w-full max-w-6xl px-4 py-2 flex flex-col gap-2">
+            {/* Row 1: title, mode/difficulty, search, start/hint */}
             <div className="flex items-center justify-between gap-4 text-sm">
               {/* Title */}
-              <div className="font-semibold text-base tracking-tight">
+              <div className="hud-title font-semibold text-base tracking-tight">
                 Border Hop
               </div>
 
               {/* Mode & Difficulty (dropdowns) */}
               <div className="flex items-end gap-4 flex-wrap">
                 <div className="flex flex-col gap-0.5">
-                  <span className="uppercase tracking-wide text-slate-500">
+                  <span className="hud-label">
                     Mode
                   </span>
                   <select
                     value={mode}
                     onChange={(e) => setMode(e.target.value as GameMode)}
-                    className="min-w-[8rem] rounded-md border border-slate-300/80 bg-white/80 dark:bg-slate-900/80 px-2 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="hud-select min-w-[8rem]"
                   >
                     <option>World</option>
                     <option>Europe</option>
@@ -195,13 +196,13 @@ export default function HUD() {
                 </div>
 
                 <div className="flex flex-col gap-0.5">
-                  <span className="uppercase tracking-wide text-slate-500">
+                  <span className="hud-label">
                     Difficulty
                   </span>
                   <select
                     value={difficulty}
                     onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
-                    className="min-w-[8rem] rounded-md border border-slate-300/80 bg-white/80 dark:bg-slate-900/80 px-2 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="hud-select min-w-[8rem]"
                   >
                     <option>Easy</option>
                     <option>Normal</option>
@@ -223,20 +224,21 @@ export default function HUD() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={onStart}
-                  className="px-3 py-1.5 rounded-full bg-black text-white text-xs font-medium dark:bg-white dark:text-black shadow-sm hover:opacity-90 transition"
+                  className="hud-button-primary px-3 py-1.5 text-xs"
                 >
                   Start
                 </button>
                 <button
                   onClick={onHint}
                   disabled={!shortest || !current || hintsLeft === 0}
-                  className="px-3 py-1.5 rounded-full border border-slate-300/80 text-xs font-medium bg-white/80 dark:bg-slate-900/80 disabled:opacity-50 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  className="hud-button-secondary px-3 py-1.5 text-xs disabled:opacity-50"
                 >
                   Hint ({hintsLeft})
                 </button>
               </div>
             </div>
 
+            {/* Row 2: hops, route text, visited, toasts */}
             <div className="flex flex-wrap items-center gap-3 text-xs">
               {/* Hops indicator */}
               <div className="min-w-[14rem]">
@@ -247,12 +249,12 @@ export default function HUD() {
                     <>
                       &nbsp;/&nbsp;<b>{hopCap}</b>
                       {nearCap && (
-                        <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                        <span className="hud-chip hud-chip-warning ml-2">
                           near cap
                         </span>
                       )}
                       {overCap && (
-                        <span className="ml-2 px-1.5 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-200">
+                        <span className="hud-chip hud-chip-error ml-2">
                           over cap
                         </span>
                       )}
@@ -263,14 +265,14 @@ export default function HUD() {
                 </div>
 
                 {hopCap != null && (
-                  <div className="mt-1 h-1.5 w-56 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                  <div className="hud-hops-track mt-1 h-1.5 w-56 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${
                         overCap
-                          ? "bg-rose-500"
+                          ? "hud-hops-fill-error"
                           : nearCap
-                          ? "bg-amber-500"
-                          : "bg-emerald-500"
+                          ? "hud-hops-fill-warning"
+                          : "hud-hops-fill-ok"
                       }`}
                       style={{ width: `${pct}%` }}
                     />
@@ -279,8 +281,8 @@ export default function HUD() {
               </div>
 
               {/* Route text */}
-              <div className="flex flex-col gap-0.5 text-[30px] sm:text-xs max-w-[20rem] sm:max-w-md">
-                <div className="opacity-80 truncate">
+              <div className="flex flex-col gap-0.5 text-[11px] sm:text-xs max-w-[20rem] sm:max-w-md">
+                <div className="hud-muted truncate">
                   {start ? (
                     <>
                       From <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b>
@@ -296,6 +298,7 @@ export default function HUD() {
                 </div>
               </div>
 
+              {/* Visited summary */}
               <div className="truncate max-w-full sm:max-w-xl">
                 Visited:{" "}
                 {Array.from(visited)
@@ -303,11 +306,10 @@ export default function HUD() {
                   .join(", ") || "-"}
               </div>
 
-
               {/* Toasts */}
               <div className="flex flex-wrap items-start gap-2">
                 {dupGuessIso && (
-                  <div className="text-[11px] px-2 py-1.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200 shadow-sm">
+                  <div className="hud-toast hud-toast-info text-[11px] max-w-xs">
                     <div className="font-medium mb-0.5">Already guessed</div>
                     <div className="opacity-90">
                       You’ve already visited <b>{nameOf(dupGuessIso)}</b>.
@@ -316,25 +318,25 @@ export default function HUD() {
                 )}
 
                 {lastPickFailed && (
-                  <div className="text-[11px] max-w-xs px-2 py-1.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 shadow-sm">
+                  <div className="hud-toast hud-toast-warning text-[11px] max-w-xs">
                     <div className="font-medium mb-0.5">Couldn’t find a route</div>
                     <div className="opacity-90 mb-1">{lastPickMessage}</div>
                     <div className="flex gap-1 flex-wrap">
                       <button
                         onClick={relaxDifficulty}
-                        className="px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                        className="hud-mini-button"
                       >
                         Try easier
                       </button>
                       <button
                         onClick={allowShorterPaths}
-                        className="px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                        className="hud-mini-button"
                       >
                         Allow shorter paths
                       </button>
                       <button
                         onClick={clearPickStatus}
-                        className="ml-auto px-2 py-0.5 rounded border border-amber-300 bg-white text-[11px]"
+                        className="hud-mini-button ml-auto"
                       >
                         Dismiss
                       </button>
