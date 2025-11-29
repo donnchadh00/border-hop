@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
-import { zoom as d3zoom } from "d3-zoom";
+import { zoom as d3zoom, zoomIdentity } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
 import { useGame } from "../store/game";
@@ -32,6 +32,7 @@ export default function Map({ width = 1000, height = 600 }) {
 
   const gRef = useRef<SVGGElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const zoomRef = useRef<ReturnType<typeof d3zoom<SVGSVGElement, unknown>> | null>(null);
 
   const { start, target } = useGame();
 
@@ -91,6 +92,7 @@ export default function Map({ width = 1000, height = 600 }) {
         });
       });
 
+    zoomRef.current = zoomBehaviour;
     svg.call(zoomBehaviour as any);
 
     // Enable context menu again (right click)
@@ -98,12 +100,13 @@ export default function Map({ width = 1000, height = 600 }) {
 
     return () => {
       svg.on(".zoom", null);
+      zoomRef.current = null;
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
   useEffect(() => {
-    if (!fc || !start || !target || !gRef.current) return;
+    if (!fc || !start || !target || !svgRef.current || !zoomRef.current) return;
 
     const features = (fc.features as F[]).filter((f) => {
       const iso3 = isoFrom(f.properties, f.id);
@@ -140,8 +143,10 @@ export default function Map({ width = 1000, height = 600 }) {
     const translateX = visibleCenterX - scale * cx;
     const translateY = visibleCenterY - scale * cy;
 
-    const transform = `translate(${translateX},${translateY}) scale(${scale})`;
-    gRef.current.setAttribute("transform", transform);
+    const t = zoomIdentity.translate(translateX, translateY).scale(scale);
+
+    const svgSelection = select(svgRef.current);
+    svgSelection.call(zoomRef.current.transform as any, t);
   }, [fc, start, target, path, width, height]);
 
   return (
