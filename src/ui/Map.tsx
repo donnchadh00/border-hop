@@ -3,13 +3,16 @@ import { geoMercator, geoPath } from "d3-geo";
 import { zoom as d3zoom } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
+import { useGame } from "../store/game";
 import type {
   FeatureCollection,
+  Feature,
   Geometry,
   GeoJsonProperties,
 } from "geojson";
 
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
+type F = Feature<Geometry, GeoJsonProperties>;
 
 // Helpers: property names vary between datasets
 function isoFrom(props: any, id?: string | number) {
@@ -29,6 +32,8 @@ export default function Map({ width = 1000, height = 600 }) {
 
   const gRef = useRef<SVGGElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const { start, target } = useGame();
 
   useEffect(() => {
     fetch("/countries.simplified.geojson")
@@ -96,6 +101,42 @@ export default function Map({ width = 1000, height = 600 }) {
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
+
+  useEffect(() => {
+    if (!fc || !start || !target || !gRef.current) return;
+
+    const features = (fc.features as F[]).filter((f) => {
+      const iso3 = isoFrom(f.properties, f.id);
+      return iso3 === start || iso3 === target;
+    });
+
+    if (!features.length) return;
+
+    const collection: CountryFC = {
+      type: "FeatureCollection",
+      features,
+    };
+
+    const [[x0, y0], [x1, y1]] = path.bounds(collection as any);
+    const dx = x1 - x0 || 1;
+    const dy = y1 - y0 || 1;
+    const cx = (x0 + x1) / 2;
+    const cy = (y0 + y1) / 2;
+
+    const padding = 0.7;
+    const maxScale = 8;
+
+    const scale = Math.min(
+      maxScale,
+      padding * Math.min(width / dx, height / dy)
+    );
+
+    const translateX = width / 2 - scale * cx;
+    const translateY = height / 2 - scale * cy;
+
+    const transform = `translate(${translateX},${translateY}) scale(${scale})`;
+    gRef.current.setAttribute("transform", transform);
+  }, [fc, start, target, path, width, height]);
 
   return (
     <svg
