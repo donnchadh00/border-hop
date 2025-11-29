@@ -13,7 +13,12 @@ type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 
 // Helpers: property names vary between datasets
 function isoFrom(props: any, id?: string | number) {
-  return props?.ADM0_A3 || props?.ISO_A3 || props?.iso_a3 || (typeof id === "string" ? id : undefined);
+  return (
+    props?.ADM0_A3 ||
+    props?.ISO_A3 ||
+    props?.iso_a3 ||
+    (typeof id === "string" ? id : undefined)
+  );
 }
 function nameFrom(props: any) {
   return props?.NAME || props?.ADMIN || props?.name || undefined;
@@ -33,7 +38,11 @@ export default function Map({ width = 1000, height = 600 }) {
   }, []);
 
   const projection = useMemo(
-    () => geoMercator().fitSize([width, height], fc ?? { type: "FeatureCollection", features: [] }),
+    () =>
+      geoMercator().fitSize(
+        [width, height],
+        fc ?? { type: "FeatureCollection", features: [] }
+      ),
     [fc, width, height]
   );
   const path = useMemo(() => geoPath(projection), [projection]);
@@ -57,7 +66,8 @@ export default function Map({ width = 1000, height = 600 }) {
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
-        if (event.type === "mousedown" && (event.button === 1 || event.button === 2)) return true;
+        if (event.type === "mousedown" && (event.button === 1 || event.button === 2))
+          return true;
         if (event.ctrlKey || event.metaKey || event.shiftKey) return true;
         // Otherwise (left button without modifiers): let clicks go to paths
         return false;
@@ -91,15 +101,17 @@ export default function Map({ width = 1000, height = 600 }) {
     <svg
       ref={svgRef}
       viewBox={`0 0 ${width} ${height}`}
-      className="w-full h-dvh"
+      className="w-full h-dvh bg-slate-950"
     >
+      {/* Map background (ocean / world background) */}
       <rect
         x="0"
         y="0"
         width={width}
         height={height}
-        className="fill-slate-200 dark:fill-slate-800"
+        className="fill-slate-900"
       />
+
       <g ref={gRef} transform="translate(0,0) scale(1)">
         {fc?.features.map((f, i) => {
           const d = path(f as any) || undefined;
