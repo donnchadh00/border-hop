@@ -1,5 +1,97 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@layer base {
-  :root { color-scheme: light dark; }
+@layer components {
+  /* Top bar shell */
+  .hud-bar {
+    @apply bg-slate-900/90 text-slate-50 border-b border-slate-700 backdrop-blur shadow-sm;
+  }
+
+  .hud-inner {
+    /* layout stuff is in JSX, so no colours needed here */
+  }
+
+  .hud-title {
+    @apply text-slate-50;
+  }
+
+  .hud-label {
+    @apply text-[11px] uppercase tracking-[0.08em] text-slate-400;
+  }
+
+  /* Dropdowns */
+  .hud-select {
+    @apply rounded-md border border-slate-500 bg-slate-800 text-slate-50
+           px-2 py-1 text-xs shadow-sm
+           focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400;
+  }
+
+  /* Primary button (Start) */
+  .hud-button-primary {
+    @apply rounded-full bg-emerald-500 text-slate-950 font-medium
+           border border-emerald-500 shadow-sm
+           hover:bg-emerald-400 active:bg-emerald-600
+           transition;
+  }
+
+  /* Secondary button (Hint) */
+  .hud-button-secondary {
+    @apply rounded-full bg-slate-900 text-slate-50 font-medium
+           border border-slate-600 shadow-sm
+           hover:bg-slate-800
+           transition;
+  }
+
+  /* Chips: near cap / over cap */
+  .hud-chip {
+    @apply rounded-full px-1.5 py-0.5 text-[11px] border;
+  }
+
+  .hud-chip-warning {
+    @apply bg-amber-100 text-amber-900 border-amber-300;
+  }
+
+  .hud-chip-error {
+    @apply bg-rose-100 text-rose-900 border-rose-300;
+  }
+
+  /* Hops bar */
+  .hud-hops-track {
+    @apply bg-slate-800;
+  }
+
+  .hud-hops-fill-ok {
+    @apply bg-emerald-500;
+  }
+
+  .hud-hops-fill-warning {
+    @apply bg-amber-500;
+  }
+
+  .hud-hops-fill-error {
+    @apply bg-rose-500;
+  }
+
+  /* Toasts */
+  .hud-toast {
+    @apply rounded-lg px-2 py-1.5 border shadow-sm;
+  }
+
+  .hud-toast-info {
+    @apply bg-sky-100 text-sky-900 border-sky-300;
+  }
+
+  .hud-toast-warning {
+    @apply bg-amber-100 text-amber-900 border-amber-300;
+  }
+
+  .hud-mini-button {
+    @apply rounded-full border border-slate-300 bg-white px-2 py-0.5 text-[11px] hover:bg-slate-50;
+  }
+
+  .hud-muted {
+    @apply text-slate-400;
+  }
 }
