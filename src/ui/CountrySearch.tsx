@@ -1,13 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../store/game";
-import type { FeatureCollection, Feature, Geometry, GeoJsonProperties } from "geojson";
+import type {
+  FeatureCollection,
+  Feature,
+  Geometry,
+  GeoJsonProperties,
+} from "geojson";
 
 type FC = FeatureCollection<Geometry, GeoJsonProperties>;
 type F = Feature<Geometry, GeoJsonProperties>;
 type Country = { iso3: string; name: string };
 
+// Helpers: property names vary between datasets
 function isoFrom(props: any, id?: string | number) {
-  return props?.ADM0_A3 || props?.ISO_A3 || props?.iso_a3 || (typeof id === "string" ? id : undefined);
+  return (
+    props?.ADM0_A3 ||
+    props?.ISO_A3 ||
+    props?.iso_a3 ||
+    (typeof id === "string" ? id : undefined)
+  );
 }
 function nameFrom(props: any) {
   return props?.NAME || props?.ADMIN || props?.name || "";
@@ -110,15 +121,15 @@ export default function CountrySearch({
   }
 
   return (
-    <div className="flex flex-col gap-2 relative">
-      <label className="text-sm opacity-80">Jump to any country</label>
+    <div className="flex flex-col gap-1.5 relative">
+      <label className="hud-label">Jump to any country</label>
       <input
         ref={inputRef}
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="w-[min(92vw,28rem)] px-3 py-2 rounded-lg border bg-white/70 dark:bg-slate-800"
+        className="w-[min(92vw,24rem)] rounded-md border border-slate-600 bg-slate-900/90 text-slate-50 px-3 py-1.5 text-xs shadow-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
         aria-autocomplete="list"
         aria-controls="country-suggest"
       />
@@ -127,7 +138,7 @@ export default function CountrySearch({
         <ul
           id="country-suggest"
           ref={listRef}
-          className="absolute left-0 right-0 top-full mt-1 max-h-60 overflow-auto rounded-lg border bg-white dark:bg-slate-900 shadow z-50"
+          className="absolute left-0 right-0 top-full mt-1 max-h-60 overflow-auto rounded-md border border-slate-700 bg-slate-950 text-slate-50 shadow-lg z-50 text-xs"
           role="listbox"
         >
           {filtered.length ? (
@@ -141,16 +152,20 @@ export default function CountrySearch({
                   tryMove(c.iso3);
                 }}
                 onMouseEnter={() => setActive(i)}
-                className={`px-3 py-2 cursor-pointer ${
-                  i === active ? "bg-slate-100 dark:bg-slate-800" : ""
+                className={`px-3 py-1.5 cursor-pointer flex items-center justify-between ${
+                  i === active ? "bg-slate-800" : ""
                 }`}
               >
                 <span className="font-medium">{c.name}</span>
-                <span className="opacity-60 ml-2 text-xs">{c.iso3}</span>
+                <span className="opacity-60 ml-2 text-[10px] tracking-wide">
+                  {c.iso3}
+                </span>
               </li>
             ))
           ) : (
-            <li className="px-3 py-2 opacity-60">No matches</li>
+            <li className="px-3 py-1.5 opacity-60 text-xs text-slate-400 bg-slate-950">
+              No matches
+            </li>
           )}
         </ul>
       )}
