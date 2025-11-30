@@ -1,6 +1,5 @@
 import React from "react";
 import clsx from "clsx";
-import neighbours from "../data/neighbours.json";
 import { useGame } from "../store/game";
 import { isOutlineMode } from "../game/modes";
 
@@ -10,8 +9,6 @@ type Props = {
   name?: string;
   interactive?: boolean;
 };
-
-const nbMap = neighbours as Record<string, readonly string[]>;
 
 function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const {
@@ -33,8 +30,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const isStart   = iso3 && start && iso3 === start;
   const isTarget  = iso3 && target && iso3 === target;
 
-  const canMove =
-    interactive && !!iso3 && (!current || nbMap[current]?.includes(iso3));
+  const canMove = interactive && !!iso3;
 
   const outlineMode = isOutlineMode(mode);
 
