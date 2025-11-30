@@ -54,7 +54,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
       : isTarget
         ? "stroke-amber-500"
         : "stroke-slate-900 dark:stroke-slate-200"
-    : // non-outline (World, Time Trial, etc.)
+    : // non-outline (Practice, Time Trial, etc.)
       isTarget
       ? "stroke-emerald-400"
       : isStart

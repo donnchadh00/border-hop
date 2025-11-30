@@ -70,7 +70,7 @@ export const useGame = create<GameState>()(
       focusIso: null,
       hintTarget: null,
 
-      mode: "World",
+      mode: "Practice",
       timeLeft: null,
       _timer: null,
 

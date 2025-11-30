@@ -1,7 +1,7 @@
 import neighbours from "../data/neighbours.json";
 export type ISO3 = keyof typeof neighbours;
 
-export type GameMode = "World" | "Europe" | "Time Trial" | "Outline";
+export type GameMode = "Practice" | "Europe" | "Time Trial" | "World";
 
 // A Europe subset (refine later)
 export const EUROPE: readonly ISO3[] = [
@@ -17,7 +17,7 @@ export function poolForMode(mode: GameMode): readonly ISO3[] {
 }
 
 export function isOutlineMode(mode: GameMode) {
-  return mode === "Outline" || mode === "Europe";
+  return mode === "World" || mode === "Europe";
 }
 
 export function allowedIso3ForMode(mode: GameMode): readonly ISO3[] {

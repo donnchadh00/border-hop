@@ -188,10 +188,10 @@ export default function HUD() {
                     onChange={(e) => setMode(e.target.value as GameMode)}
                     className="hud-select min-w-[8rem]"
                   >
-                    <option>World</option>
+                    <option>Practice</option>
                     <option>Europe</option>
                     <option>Time Trial</option>
-                    <option>Outline</option>
+                    <option>World</option>
                   </select>
                 </div>
 
