@@ -396,7 +396,7 @@ export default function HUD() {
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)] max-h-[90vh] overflow-y-auto">
             <div className="text-xl font-semibold mb-2">Out of hops!</div>
             <div className="opacity-80 mb-4">
-              You used <b>{moves}</b>
+              You used <b>{moves + 1}</b>
               {hopCap != null && (
                 <>
                   {" "}
@@ -405,6 +405,14 @@ export default function HUD() {
               )}{" "}
               hops and didn’t reach the target.
             </div>
+            {optimalPathNames && (
+              <div className="text-sm opacity-80 mb-4">
+                <div className="font-medium mb-1">Shortest path:</div>
+                <div className="text-xs sm:text-sm break-words">
+                  {optimalPathNames.join(" → ")}
+                </div>
+              </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={playAgain}
