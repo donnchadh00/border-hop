@@ -57,7 +57,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
       ? "stroke-blue-500"
       : isTarget
         ? "stroke-amber-500"
-        : "stroke-transparent"
+        : "stroke-slate-900 dark:stroke-slate-200"
     : // non-outline (World, Time Trial, etc.)
       isTarget
       ? "stroke-emerald-400"
@@ -69,7 +69,7 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const strokeWidth = outlineMode
     ? isStart || isTarget
       ? "stroke-[1.5]"
-      : "stroke-[0]"
+      : "stroke-[0.75]"
     : isTarget || isStart
       ? "stroke-[1.2]"
       : "stroke-[0.5]";
