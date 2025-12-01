@@ -161,7 +161,7 @@ export default function Map({ width = 1000, height = 600 }) {
         y="0"
         width={width}
         height={height}
-        className="fill-slate-900"
+        className="fill-sky-950"
       />
 
       <g ref={gRef} transform="translate(0,0) scale(1)">
