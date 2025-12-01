@@ -1,0 +1,20 @@
+# Node
+node_modules
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Build artifacts
+dist
+build
+*.log
+
+# Git
+.git
+.gitignore
+
+# Editor / OS junk
+.vscode
+.idea
+.DS_Store
+*.swp
