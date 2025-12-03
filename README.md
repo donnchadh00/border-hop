@@ -1,73 +1,142 @@
-# React + TypeScript + Vite
+# Border Hop
+*A geography-puzzle game built with React, TypeScript, D3, and modern web tooling.*
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[Play the live demo](https://border-hop-amber.vercel.app/)
 
-Currently, two official plugins are available:
+Border Hop is an interactive world-map puzzle game where players navigate from one country to another using only valid land borders ("hops"). The game features multiple modes including **World**, **Europe**, and **Practice**, each offering its own challenge. It also incorporates hints, difficulty settings, animated toasts, real-time path visualisation, and a clean, dark, responsive UI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![examplegif](docs/game.gif)
+> _Example gameplay: Start in one country and hop your way to the target._
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## **Features**
 
-## Expanding the ESLint configuration
+### Interactive Geography Gameplay  
+- Select neighbouring countries to travel from **source -> destination**.  
+- Map interaction powered by **D3 (d3-geo + d3-zoom)**.  
+- Smooth zoom/pan with automatic "fit to route" framing of start & destination.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Game Modes  
+- **World** - Standard rules, all countries.
+- **Europe** - Standard rules, EU countries only. 
+- **Practice** - All countries visible, experiment with routes.  
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Difficulty System  
+- Four presets: Easy, Normal, Hard, Extreme.  
+- Difficulty determines minimum/maximum hops for generated routes.  
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Smart Hints  
+- In normal modes: reveal the outline of the next optimal hop based on BFS shorteset path.  
+- In Practice mode: highlight the next unvisited country along the shortest path.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Polished UI / UX  
+- Dark, modern theme with **Tailwind** component classes.
+- Responsive HUD and map layout.  
+- Toasts for duplicate guesses, failed route generation, and other events.  
+- End-of-game overlay shows:  
+  - Total hops taken  
+  - Optimal path length  
+  - Full list of countries along the shortest route
+
+### Accurate Geodata  
+- Uses **GeoJSON files** for world and Europe maps (https://geojson-maps.kyd.au/).  
+- Preprocessing scripts:  
+  - `make-neighbours.mjs` extracts border adjacency using TopoJSON.  
+  - `simplify-geo.mjs` reduces polygon complexity for faster rendering.
+
+---
+
+## **Tech Stack**
+
+| Category | Tools |
+|------|-------------|
+| Framework | [React](https://react.dev/) + [Vite](https://vitejs.dev/) |
+| Language | [TypeScript](https://www.typescriptlang.org/) |
+| Styling | [Tailwind CSS](https://tailwindcss.com/) |
+| State Management | [Zustand](https://github.com/pmndrs/zustand) |
+| Maps | [D3 Geo](https://github.com/d3/d3-geo) + [TopoJSON](https://github.com/topojson/topojson-client) |
+| Deployment | [Docker](https://www.docker.com/) + [Vercel](https://border-hop-amber.vercel.app/) |
+
+---
+
+## **Project Structure**
+
+```
+src/
+  ui/
+    HUD.tsx
+    Map.tsx
+    CountryPath.tsx
+    CountrySearch.tsx
+  game/
+    graph.ts
+    modes.ts
+    difficulty.ts
+    reachability.ts
+  store/
+    game.ts
+
+public/
+  countries.geojson
+  countries.simplified.geojson
+
+scripts/
+  make-neighbours.mjs
+  simplify-geo.mjs
+
+Dockerfile
+README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Local Setup
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# 1. Clone & install
+git clone https://github.com/donnchadh00/border-hop.git
+cd border-hop
+npm install
+
+# 2. Run development server
+npm run dev
+
+# 3. Build for production
+npm run build
 ```
+---
+
+## **Docker**
+Fully containerized build for easy deployment:
+
+### Build image and run container
+```bash
+docker build -t border-hop .
+docker run -p 5173:80 border-hop
+```
+alternatively use docker compose file
+```bash
+docker compose up --build -d
+```
+
+---
+
+## **Technical Overview**
+
+### Route Generation
+- Random start + end taken from the selected mode’s country pool.  
+- BFS shortest path between them is computed.  
+- Hops must fall within the selected difficulty's min/max hop window.  
+- Smart backoff: retries route selection with varying hop budgets.
+
+### Game Loop
+1. Player selects countries via search bar.  
+2. Moves increment, visited set updates.  
+3. Win if reached target within allowed moves.  
+4. Lose if out of hops without a winning path.
+
+### Rendering Pipeline
+- GeoJSON -> TopoJSON -> SVG paths via `d3-geo`.  
+- Projection: Mercator fitted dynamically to map bounds.  
+- Smooth panning/zooming via `d3-zoom`.
