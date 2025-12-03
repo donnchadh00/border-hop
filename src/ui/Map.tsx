@@ -72,7 +72,7 @@ export default function Map({ width = 1000, height = 600 }) {
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
-        if (event.type === "mousedown" && (event.button === 1 || event.button === 2))
+        if (event.type === "mousedown" && (event.button === 0 || event.button === 1 || event.button === 2))
           return true;
         if (event.ctrlKey || event.metaKey || event.shiftKey) return true;
         // Otherwise (left button without modifiers): let clicks go to paths
