@@ -36,7 +36,12 @@
     "MEX",
     "BLZ"
   ],
-  "CUB": [],
+  "USG": [
+    "CUB"
+  ],
+  "CUB": [
+    "USG"
+  ],
   "HND": [
     "NIC",
     "SLV",
@@ -79,6 +84,8 @@
   "JAM": [],
   "CYM": [],
   "BMU": [],
+  "BJN": [],
+  "SER": [],
   "IDN": [
     "MYS",
     "TLS",
@@ -89,14 +96,24 @@
     "THA",
     "BRN"
   ],
-  "CYP": [],
+  "ESB": [
+    "CYP",
+    "CYN",
+    "CNM"
+  ],
+  "CYP": [
+    "ESB",
+    "CNM",
+    "WSB"
+  ],
   "IND": [
     "CHN",
     "BTN",
     "PAK",
     "MMR",
     "BGD",
-    "NPL"
+    "NPL",
+    "KAS"
   ],
   "CHN": [
     "IND",
@@ -113,16 +130,17 @@
     "AFG",
     "NPL",
     "HKG",
+    "KAS",
     "RUS"
   ],
   "ISR": [
-    "PSE",
+    "PSX",
     "LBN",
     "SYR",
     "JOR",
     "EGY"
   ],
-  "PSE": [
+  "PSX": [
     "ISR",
     "JOR",
     "EGY"
@@ -268,7 +286,8 @@
     "IND",
     "CHN",
     "IRN",
-    "AFG"
+    "AFG",
+    "KAS"
   ],
   "THA": [
     "MYS",
@@ -313,7 +332,7 @@
   ],
   "JOR": [
     "ISR",
-    "PSE",
+    "PSX",
     "SYR",
     "IRQ",
     "SAU"
@@ -329,17 +348,38 @@
   "HKG": [
     "CHN"
   ],
+  "CYN": [
+    "ESB",
+    "CNM"
+  ],
+  "CNM": [
+    "ESB",
+    "CYP",
+    "CYN"
+  ],
+  "KAS": [
+    "IND",
+    "CHN",
+    "PAK"
+  ],
+  "WSB": [
+    "CYP"
+  ],
   "PHL": [],
   "LKA": [],
   "TWN": [],
   "JPN": [],
+  "IOA": [],
   "SGP": [],
   "BHR": [],
+  "PGA": [],
   "MAC": [],
+  "SCR": [],
   "CHL": [
     "BOL",
     "PER",
-    "ARG"
+    "ARG",
+    "SPI"
   ],
   "BOL": [
     "CHL",
@@ -360,11 +400,14 @@
     "BOL",
     "BRA",
     "URY",
-    "PRY"
+    "PRY",
+    "BRI",
+    "SPI"
   ],
   "SUR": [
     "GUY",
-    "BRA"
+    "BRA",
+    "FRA"
   ],
   "GUY": [
     "SUR",
@@ -380,11 +423,14 @@
     "URY",
     "COL",
     "PRY",
-    "VEN"
+    "BRI",
+    "VEN",
+    "FRA"
   ],
   "URY": [
     "ARG",
-    "BRA"
+    "BRA",
+    "BRI"
   ],
   "ECU": [
     "PER",
@@ -402,21 +448,31 @@
     "ARG",
     "BRA"
   ],
+  "BRI": [
+    "ARG",
+    "BRA",
+    "URY"
+  ],
   "VEN": [
     "GUY",
     "BRA",
     "COL"
   ],
+  "SPI": [
+    "CHL",
+    "ARG"
+  ],
   "FLK": [],
   "ETH": [
-    "SSD",
+    "SDS",
     "SOM",
     "KEN",
+    "SOL",
     "SDN",
     "DJI",
     "ERI"
   ],
-  "SSD": [
+  "SDS": [
     "ETH",
     "KEN",
     "COD",
@@ -426,11 +482,12 @@
   ],
   "SOM": [
     "ETH",
-    "KEN"
+    "KEN",
+    "SOL"
   ],
   "KEN": [
     "ETH",
-    "SSD",
+    "SDS",
     "SOM",
     "TZA",
     "UGA"
@@ -450,12 +507,17 @@
     "RWA",
     "UGA"
   ],
+  "SOL": [
+    "ETH",
+    "SOM",
+    "DJI"
+  ],
   "MAR": [
-    "ESH",
+    "SAH",
     "DZA",
     "ESP"
   ],
-  "ESH": [
+  "SAH": [
     "MAR",
     "DZA",
     "MRT"
@@ -468,7 +530,7 @@
     "GAB"
   ],
   "COD": [
-    "SSD",
+    "SDS",
     "TZA",
     "COG",
     "ZMB",
@@ -531,7 +593,7 @@
     "CIV"
   ],
   "CAF": [
-    "SSD",
+    "SDS",
     "COG",
     "COD",
     "SDN",
@@ -540,15 +602,17 @@
   ],
   "SDN": [
     "ETH",
-    "SSD",
+    "SDS",
     "LBY",
     "CAF",
     "ERI",
     "TCD",
-    "EGY"
+    "EGY",
+    "BRT"
   ],
   "DJI": [
     "ETH",
+    "SOL",
     "ERI"
   ],
   "ERI": [
@@ -618,7 +682,7 @@
   ],
   "DZA": [
     "MAR",
-    "ESH",
+    "SAH",
     "LBY",
     "TUN",
     "MLI",
@@ -649,7 +713,7 @@
     "UGA"
   ],
   "UGA": [
-    "SSD",
+    "SDS",
     "KEN",
     "TZA",
     "COD",
@@ -704,12 +768,13 @@
   ],
   "EGY": [
     "ISR",
-    "PSE",
+    "PSX",
     "LBY",
-    "SDN"
+    "SDN",
+    "BRT"
   ],
   "MRT": [
-    "ESH",
+    "SAH",
     "MLI",
     "SEN",
     "DZA"
@@ -721,10 +786,26 @@
   "GMB": [
     "SEN"
   ],
+  "BRT": [
+    "SDN",
+    "EGY"
+  ],
   "MDG": [],
   "COM": [],
   "STP": [],
   "CPV": [],
+  "FRA": [
+    "SUR",
+    "BRA",
+    "DEU",
+    "LUX",
+    "BEL",
+    "ESP",
+    "ITA",
+    "CHE",
+    "MCO",
+    "AND"
+  ],
   "UKR": [
     "BLR",
     "RUS",
@@ -759,6 +840,7 @@
     "LTU",
     "EST",
     "LVA",
+    "NOR",
     "FIN",
     "POL"
   ],
@@ -769,6 +851,7 @@
     "AUT"
   ],
   "DEU": [
+    "FRA",
     "CZE",
     "LUX",
     "BEL",
@@ -788,35 +871,53 @@
     "RUS",
     "EST"
   ],
+  "NOR": [
+    "RUS",
+    "SWE",
+    "FIN"
+  ],
   "SWE": [
+    "NOR",
     "FIN"
   ],
   "FIN": [
     "RUS",
+    "NOR",
     "SWE"
   ],
   "LUX": [
+    "FRA",
     "DEU",
     "BEL"
   ],
   "BEL": [
+    "FRA",
     "DEU",
     "LUX",
     "NLD"
   ],
   "MKD": [
     "ALB",
+    "KOS",
     "GRC",
     "SRB",
     "BGR"
   ],
   "ALB": [
     "MKD",
+    "KOS",
     "GRC",
+    "MNE"
+  ],
+  "KOS": [
+    "MKD",
+    "ALB",
+    "SRB",
     "MNE"
   ],
   "ESP": [
     "MAR",
+    "FRA",
     "AND",
     "PRT",
     "GIB"
@@ -879,6 +980,7 @@
     "SVN"
   ],
   "ITA": [
+    "FRA",
     "AUT",
     "CHE",
     "SVN",
@@ -886,6 +988,7 @@
     "VAT"
   ],
   "CHE": [
+    "FRA",
     "DEU",
     "AUT",
     "ITA",
@@ -901,6 +1004,7 @@
   ],
   "SRB": [
     "MKD",
+    "KOS",
     "ROU",
     "HUN",
     "HRV",
@@ -931,12 +1035,16 @@
   "SMR": [
     "ITA"
   ],
-  "MCO": [],
+  "MCO": [
+    "FRA"
+  ],
   "AND": [
+    "FRA",
     "ESP"
   ],
   "MNE": [
     "ALB",
+    "KOS",
     "SRB",
     "HRV",
     "BIH"
@@ -964,7 +1072,7 @@
   "JEY": [],
   "GGY": [],
   "IMN": [],
-  "ALA": [],
+  "ALD": [],
   "FRO": [],
   "PNG": [
     "IDN"
@@ -992,6 +1100,8 @@
   "PLW": [],
   "GUM": [],
   "MNP": [],
+  "CSI": [],
+  "ATC": [],
   "ATA": [],
   "ATF": [],
   "SYC": [],
