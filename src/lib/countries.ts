@@ -1,4 +1,9 @@
-export function isoFrom(props: any, id?: string | number): string | undefined {
+export type CountryProps = Record<string, unknown> | null | undefined;
+
+export function countryIso3From(
+  props: CountryProps,
+  id?: string | number
+): string | undefined {
   const candidates = [
     props?.adm0_a3,
     props?.adm0_iso,
@@ -23,12 +28,12 @@ export function isoFrom(props: any, id?: string | number): string | undefined {
   return undefined;
 }
 
-export function nameFrom(props: any): string {
-  return (
+export function countryNameFrom(props: CountryProps): string {
+  return String(
     props?.name ||
-    props?.admin ||
-    props?.name_en ||
-    props?.formal_en ||
-    "Unknown"
+      props?.admin ||
+      props?.name_en ||
+      props?.formal_en ||
+      "Unknown"
   );
 }
