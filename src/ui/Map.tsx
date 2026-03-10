@@ -16,15 +16,32 @@ type F = Feature<Geometry, GeoJsonProperties>;
 
 // Helpers: property names vary between datasets
 function isoFrom(props: any, id?: string | number) {
-  return (
-    props?.ADM0_A3 ||
-    props?.ISO_A3 ||
-    props?.iso_a3 ||
-    (typeof id === "string" ? id : undefined)
-  );
+  const candidates = [
+    props?.adm0_a3,
+    props?.adm0_iso,
+    props?.gu_a3,
+    props?.su_a3,
+    props?.brk_a3,
+    props?.iso_a3_eh,
+    props?.wb_a3,
+    props?.sov_a3,
+    props?.iso_a3,
+    typeof id === "string" ? id : null,
+  ];
+
+  for (const cand of candidates) {
+    if (!cand) continue;
+    const code = String(cand).toUpperCase().trim();
+    if (code === "-99") continue;
+    if (!/^[A-Z]{3}$/.test(code)) continue;
+    return code;
+  }
+
+  return undefined;
 }
+
 function nameFrom(props: any) {
-  return props?.NAME || props?.ADMIN || props?.name || undefined;
+  return props?.name || props?.admin || props?.name_en || props?.formal_en || "Unknown";
 }
 
 export default function Map({ width = 1000, height = 600 }) {
@@ -37,10 +54,10 @@ export default function Map({ width = 1000, height = 600 }) {
   const { start, target } = useGame();
 
   useEffect(() => {
-    fetch("/countries.simplified.geojson")
+    fetch("/countries.cleaned.simplified.geojson")
       .then((r) => r.json())
       .then((j) => setFc(j as CountryFC))
-      .catch((e) => console.error("Failed to load countries.geojson", e));
+      .catch((e) => console.error("Failed to load countries.cleaned.simplified.geojson", e));
   }, []);
 
   const projection = useMemo(

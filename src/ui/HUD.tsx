@@ -96,7 +96,7 @@ export default function HUD() {
       ? Math.max(0, Math.min(100, Math.round((hopsUsed / hopCap) * 100)))
       : 0;
 
-  const { nameOf } = useCountryNames("/countries.geojson");
+  const { nameOf } = useCountryNames("/countries.cleaned.simplified.geojson");
 
   const onStart = () => {
     const ok = randomiseReachableRoute();
@@ -215,7 +215,7 @@ export default function HUD() {
               {/* Search bar */}
               <div className="w-full sm:w-auto flex-shrink-0">
                 <CountrySearch
-                  source="/countries.geojson"
+                  source="/countries.cleaned.simplified.geojson"
                   allowedIso3={allowedIso3}
                 />
               </div>
