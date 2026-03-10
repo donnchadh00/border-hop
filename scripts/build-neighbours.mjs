@@ -24,13 +24,27 @@ const geo = JSON.parse(fs.readFileSync(INPUT, "utf-8"));
 // Prefer a sovereign code when available; fall back to ISO/ADM props.
 // Reject -99 and non-3-letter codes.
 function getCode(p = {}) {
-  const cand =
-    p.SOV_A3 || p.ISO_A3_EH || p.ADM0_A3 || p.ISO_A3 || p.WB_A3 || p.iso_a3 || null;
-  if (!cand) return null;
-  const code = String(cand).toUpperCase();
-  if (code === "-99") return null;
-  if (!/^[A-Z]{3}$/.test(code)) return null;
-  return code;
+  const candidates = [
+    p.adm0_a3,
+    p.adm0_iso,
+    p.gu_a3,
+    p.su_a3,
+    p.brk_a3,
+    p.iso_a3_eh,
+    p.wb_a3,
+    p.sov_a3,
+    p.iso_a3,
+  ];
+
+  for (const cand of candidates) {
+    if (!cand) continue;
+    const code = String(cand).toUpperCase().trim();
+    if (code === "-99") continue;
+    if (!/^[A-Z]{3}$/.test(code)) continue;
+    return code;
+  }
+
+  return null;
 }
 
 // Build topology
