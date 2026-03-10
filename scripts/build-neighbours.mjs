@@ -9,13 +9,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const inputArg = process.argv[2] ?? "../public/countries.geojson";
 const INPUT = path.resolve(__dirname, inputArg);
 
-const inputBase = path.basename(INPUT);
-const baseName = inputBase
-  .replace(/\.geo\.json$/i, "")
-  .replace(/\.geojson$/i, "")
-  .replace(/\.json$/i, "");
+// const inputBase = path.basename(INPUT);
+// const baseName = inputBase
+//   .replace(/\.geo\.json$/i, "")
+//   .replace(/\.geojson$/i, "")
+//   .replace(/\.json$/i, "");
 
-const OUTPUT = path.resolve(__dirname, `../src/data/${baseName}.json`);
+const OUTPUT = path.resolve(__dirname, `../src/data/neighbours.json`);
 
 const OBJ = "countries";
 
