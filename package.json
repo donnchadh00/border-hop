@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare-data": "node scripts/build-neighbours.mjs",
-    "simplify-data": "node scripts/simplify-geo.mjs",
+    "prepare-data": "node scripts/prepare-countries.mjs && node scripts/simplify-geo.mjs ../public/countries.cleaned.geojson && node scripts/build-neighbours.mjs ../public/countries.cleaned.geojson",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run prepare-data && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
