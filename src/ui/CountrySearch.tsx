@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../store/game";
+import { countryIso3From, countryNameFrom } from "../lib/countries";
 import type {
   FeatureCollection,
   Feature,
@@ -11,35 +12,6 @@ type FC = FeatureCollection<Geometry, GeoJsonProperties>;
 type F = Feature<Geometry, GeoJsonProperties>;
 type Country = { iso3: string; name: string };
 
-// Helpers: property names vary between datasets
-function isoFrom(props: any, id?: string | number) {
-  const candidates = [
-    props?.adm0_a3,
-    props?.adm0_iso,
-    props?.gu_a3,
-    props?.su_a3,
-    props?.brk_a3,
-    props?.iso_a3_eh,
-    props?.wb_a3,
-    props?.sov_a3,
-    props?.iso_a3,
-    typeof id === "string" ? id : null,
-  ];
-
-  for (const cand of candidates) {
-    if (!cand) continue;
-    const code = String(cand).toUpperCase().trim();
-    if (code === "-99") continue;
-    if (!/^[A-Z]{3}$/.test(code)) continue;
-    return code;
-  }
-
-  return undefined;
-}
-
-function nameFrom(props: any) {
-  return props?.name || props?.admin || props?.name_en || props?.formal_en || "Unknown";
-}
 function normalise(s: string) {
   return s.normalize("NFKD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 }
@@ -72,13 +44,13 @@ export default function CountrySearch({
           : null;
 
         for (const f of fc.features as F[]) {
-          const iso3 = isoFrom(f.properties, f.id);
+          const iso3 = countryIso3From(f.properties, f.id);
           if (!iso3 || seen.has(iso3)) continue;
 
           if (allowedSet && !allowedSet.has(iso3.toUpperCase())) continue;
 
           seen.add(iso3);
-          rows.push({ iso3, name: nameFrom(f.properties) || iso3 });
+          rows.push({ iso3, name: countryNameFrom(f.properties) || iso3 });
         }
         rows.sort((a, b) => a.name.localeCompare(b.name));
         setAll(rows);

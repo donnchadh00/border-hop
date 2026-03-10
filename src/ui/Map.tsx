@@ -4,6 +4,7 @@ import { zoom as d3zoom, zoomIdentity } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
 import { useGame } from "../store/game";
+import { countryIso3From, countryNameFrom } from "../lib/countries";
 import type {
   FeatureCollection,
   Feature,
@@ -13,36 +14,6 @@ import type {
 
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 type F = Feature<Geometry, GeoJsonProperties>;
-
-// Helpers: property names vary between datasets
-function isoFrom(props: any, id?: string | number) {
-  const candidates = [
-    props?.adm0_a3,
-    props?.adm0_iso,
-    props?.gu_a3,
-    props?.su_a3,
-    props?.brk_a3,
-    props?.iso_a3_eh,
-    props?.wb_a3,
-    props?.sov_a3,
-    props?.iso_a3,
-    typeof id === "string" ? id : null,
-  ];
-
-  for (const cand of candidates) {
-    if (!cand) continue;
-    const code = String(cand).toUpperCase().trim();
-    if (code === "-99") continue;
-    if (!/^[A-Z]{3}$/.test(code)) continue;
-    return code;
-  }
-
-  return undefined;
-}
-
-function nameFrom(props: any) {
-  return props?.name || props?.admin || props?.name_en || props?.formal_en || "Unknown";
-}
 
 export default function Map({ width = 1000, height = 600 }) {
   const [fc, setFc] = useState<CountryFC | null>(null);
@@ -126,7 +97,7 @@ export default function Map({ width = 1000, height = 600 }) {
     if (!fc || !start || !target || !svgRef.current || !zoomRef.current) return;
 
     const features = (fc.features as F[]).filter((f) => {
-      const iso3 = isoFrom(f.properties, f.id);
+      const iso3 = countryIso3From(f.properties, f.id);
       return iso3 === start || iso3 === target;
     });
 
@@ -184,8 +155,8 @@ export default function Map({ width = 1000, height = 600 }) {
       <g ref={gRef} transform="translate(0,0) scale(1)">
         {fc?.features.map((f, i) => {
           const d = path(f as any) || undefined;
-          const iso3 = isoFrom(f.properties, f.id);
-          const name = nameFrom(f.properties);
+          const iso3 = countryIso3From(f.properties, f.id);
+          const name = countryNameFrom(f.properties);
           return (
             <CountryPath
               key={i}
