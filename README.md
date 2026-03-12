@@ -49,11 +49,43 @@ The challenge comes from:
   - Optimal path length  
   - Full list of countries along the shortest route
 
-### Accurate Geodata  
-- Uses **GeoJSON files** for world and Europe maps (https://geojson-maps.kyd.au/).  
-- Preprocessing scripts:  
-  - `make-neighbours.mjs` extracts border adjacency using TopoJSON.  
-  - `simplify-geo.mjs` reduces polygon complexity for faster rendering.
+### Accurate Geodata
+- Border Hop uses **GeoJSON world map data** sourced from  
+  https://geojson-maps.kyd.au/
+- To optimise rendering performance and enable fast neighbour lookups, the raw dataset is processed using a small preprocessing pipeline.
+- The preprocessing scripts:
+  - **`prepare-countries.mjs`**  
+    Cleans the source dataset and standardises country identifiers.
+  - **`simplify-geo.mjs`**  
+    Simplifies polygon geometry to reduce rendering cost while preserving shape fidelity.
+
+  - **`build-neighbours.mjs`**  
+    Computes country border adjacency and outputs a neighbour graph used by the gameplay BFS logic.
+
+### Data Preparation Pipeline
+Run the preprocessing pipeline before development or production builds:
+
+```bash
+npm run prepare-data
+```
+
+This executes:
+```bash
+node scripts/prepare-countries.mjs
+node scripts/simplify-geo.mjs ../public/countries.cleaned.geojson
+node scripts/build-neighbours.mjs ../public/countries.cleaned.geojson
+```
+
+This generates:
+```
+public/
+  countries.cleaned.geojson
+  countries.cleaned.simplified.geojson
+src/data/
+  neighbours.json
+```
+
+These assets are then loaded by the game for map rendering and route generation.
 
 ## **Tech Stack**
 
