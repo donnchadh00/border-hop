@@ -3,12 +3,22 @@
 
 [Play the live demo](https://border-hop-amber.vercel.app/)
 
-Border Hop is an interactive world-map puzzle game where players navigate from one country to another using only valid land borders ("hops"). The game features multiple modes including **World**, **Europe**, and **Practice**, each offering its own challenge. It also incorporates hints, difficulty settings, animated toasts, real-time path visualisation, and a clean, dark, responsive UI.
+Border Hop is an interactive world-map puzzle game where players must navigate from a **start country** to a **target country** using only valid **land borders** ("hops"). The game features multiple modes including **World**, **Europe**, and **Practice**, each offering its own challenge. It also incorporates hints, difficulty settings, animated toasts, real-time path visualisation, and a clean, dark, responsive UI.
+
+## Gameplay
+
+Each move must select a country that shares a border with the current country.
+
+The challenge comes from:
+
+- limited hop counts based on difficulty
+- hidden maps in certain modes
+- discovering efficient geographic routes
+
+## Demo
 
 ![examplegif](docs/game.gif)
 > _Example gameplay: Start in one country and hop your way to the target._
-
----
 
 ## **Features**
 
@@ -27,7 +37,7 @@ Border Hop is an interactive world-map puzzle game where players navigate from o
 - Difficulty determines minimum/maximum hops for generated routes.  
 
 ### Smart Hints  
-- In normal modes: reveal the outline of the next optimal hop based on BFS shorteset path.  
+- In normal modes: reveal the outline of the next optimal hop based on BFS shortest path.  
 - In Practice mode: highlight the next unvisited country along the shortest path.
 
 ### Polished UI / UX  
@@ -45,8 +55,6 @@ Border Hop is an interactive world-map puzzle game where players navigate from o
   - `make-neighbours.mjs` extracts border adjacency using TopoJSON.  
   - `simplify-geo.mjs` reduces polygon complexity for faster rendering.
 
----
-
 ## **Tech Stack**
 
 | Category | Tools |
@@ -57,8 +65,6 @@ Border Hop is an interactive world-map puzzle game where players navigate from o
 | State Management | [Zustand](https://github.com/pmndrs/zustand) |
 | Maps | [D3 Geo](https://github.com/d3/d3-geo) + [TopoJSON](https://github.com/topojson/topojson-client) |
 | Deployment | [Docker](https://www.docker.com/) + [Vercel](https://border-hop-amber.vercel.app/) |
-
----
 
 ## **Project Structure**
 
@@ -78,18 +84,17 @@ src/
     game.ts
 
 public/
-  countries.geojson
-  countries.simplified.geojson
+  countries.cleaned.geojson
+  countries.cleaned.simplified.geojson
 
 scripts/
-  make-neighbours.mjs
+  prepare-countries.mjs
   simplify-geo.mjs
+  build-neighbours.mjs
 
 Dockerfile
 README.md
 ```
-
----
 
 ## Local Setup
 
@@ -105,7 +110,6 @@ npm run dev
 # 3. Build for production
 npm run build
 ```
----
 
 ## **Docker**
 Fully containerized build for easy deployment:
@@ -119,8 +123,6 @@ alternatively use docker compose file
 ```bash
 docker compose up --build -d
 ```
-
----
 
 ## **Technical Overview**
 
