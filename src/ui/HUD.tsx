@@ -52,6 +52,44 @@ function isWinningPosition(
   return false;
 }
 
+function RouteMarker({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "start" | "target" | "current";
+}) {
+  const toneClasses =
+    tone === "start"
+      ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
+      : tone === "target"
+      ? "border-rose-400/40 bg-rose-500/10 text-rose-200"
+      : "border-sky-400/40 bg-sky-500/10 text-sky-200";
+
+  const dotClasses =
+    tone === "start"
+      ? "bg-emerald-400"
+      : tone === "target"
+      ? "bg-rose-400"
+      : "bg-sky-400";
+
+  return (
+    <div
+      className={`rounded-xl border px-3 py-2 min-w-[10rem] ${toneClasses}`}
+    >
+      <div className="flex items-center gap-2 text-[10px] sm:text-[11px] uppercase tracking-[0.16em] opacity-80">
+        <span className={`inline-block h-2.5 w-2.5 rounded-full ${dotClasses}`} />
+        <span>{label}</span>
+      </div>
+      <div className="mt-1 text-sm sm:text-base font-semibold leading-tight">
+        {value}
+      </div>
+    </div>
+  );
+}
+
 export default function HUD() {
   const {
     start,
@@ -238,7 +276,7 @@ export default function HUD() {
               </div>
             </div>
 
-            {/* Row 2: hops, route text, visited, toasts */}
+            {/* Row 2: hops, route summary, visited, toasts */}
             <div className="flex flex-wrap items-center gap-3 text-xs">
               {/* Hops indicator */}
               <div className="min-w-[14rem]">
@@ -280,22 +318,31 @@ export default function HUD() {
                 )}
               </div>
 
-              {/* Route text */}
-              <div className="flex flex-col gap-0.5 text-[11px] sm:text-xs max-w-[20rem] sm:max-w-md">
-                <div className="hud-muted truncate">
-                  {start ? (
-                    <>
-                      From <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b>
-                    </>
-                  ) : (
-                    "Click Start to pick a random route"
-                  )}
-                </div>
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="truncate">
-                    Current: <b>{nameOf(current)}</b> · Moves: <b>{moves}</b>
+              {/* Route summary */}
+              <div className="flex flex-wrap items-stretch gap-2">
+                {start ? (
+                  <>
+                    <RouteMarker
+                      label="Start"
+                      value={nameOf(start)}
+                      tone="start"
+                    />
+                    <RouteMarker
+                      label="Target"
+                      value={nameOf(target)}
+                      tone="target"
+                    />
+                    <RouteMarker
+                      label="Current"
+                      value={nameOf(current)}
+                      tone="current"
+                    />
+                  </>
+                ) : (
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs sm:text-sm text-slate-300">
+                    Click <b>Start</b> to generate a route.
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Visited summary */}
