@@ -12,7 +12,7 @@ Each move must select a country that shares a border with the current country.
 The challenge comes from:
 
 - limited hop counts based on difficulty
-- hidden maps in certain modes
+- outline map modes where countries must be discovered through exploration
 - discovering efficient geographic routes
 
 ## Demo
@@ -87,6 +87,27 @@ src/data/
 
 These assets are then loaded by the game for map rendering and route generation.
 
+## Architecture
+
+```
+GeoJSON dataset
+        │
+        ▼
+Preprocessing pipeline
+        │
+        ├── simplified geometry
+        └── border adjacency graph
+                │
+                ▼
+React + D3 map renderer
+                │
+                ▼
+Game state (Zustand)
+                │
+                ▼
+Route generation & hints (BFS)
+```
+
 ## **Tech Stack**
 
 | Category | Tools |
@@ -136,12 +157,25 @@ git clone https://github.com/donnchadh00/border-hop.git
 cd border-hop
 npm install
 
-# 2. Run development server
+# 2. Prepare map data
+npm run prepare-data
+
+# 3. Run development server
 npm run dev
 
-# 3. Build for production
+# 4. Build for production
 npm run build
 ```
+
+### Map Data Preparation
+
+The game uses a preprocessed GeoJSON dataset and a precomputed neighbour graph for fast rendering and route generation.
+
+`npm run prepare-data` runs the preprocessing pipeline:
+
+- clean country dataset
+- simplify polygon geometry
+- compute border adjacency graph
 
 ## **Docker**
 Fully containerized build for easy deployment:
@@ -151,7 +185,7 @@ Fully containerized build for easy deployment:
 docker build -t border-hop .
 docker run -p 5173:80 border-hop
 ```
-alternatively use docker compose file
+Alternatively, use Docker Compose:
 ```bash
 docker compose up --build -d
 ```
@@ -174,3 +208,19 @@ docker compose up --build -d
 - GeoJSON -> TopoJSON -> SVG paths via `d3-geo`.  
 - Projection: Mercator fitted dynamically to map bounds.  
 - Smooth panning/zooming via `d3-zoom`.
+
+### Graph Representation
+
+- Countries are represented as a graph where:
+  - **Nodes** = countries  
+  - **Edges** = shared land borders  
+- The adjacency graph is precomputed during the data preparation step and stored as `neighbours.json`.
+- This allows the game to efficiently compute shortest routes using **Breadth-First Search (BFS)**.
+
+## Future Improvements
+
+- Daily challenge mode with a shared route for all players
+- Global leaderboard and scoring system
+- Additional regional modes (Asia, Africa, Americas)
+- Alternative map projections for improved global visibility
+- Mobile gesture improvements for touch devices
