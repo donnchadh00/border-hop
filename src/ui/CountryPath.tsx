@@ -34,7 +34,12 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const outlineMode = isOutlineMode(mode);
 
   const shouldHide =
-    outlineMode && !isVisited && !isCurrent && !isStart && !isTarget;
+    outlineMode &&
+    !isVisited &&
+    !isCurrent &&
+    !isStart &&
+    !isTarget &&
+    !isHinted;
 
   const baseFill = isStart
     ? "fill-emerald-500"
@@ -42,6 +47,8 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
     ? "fill-rose-500"
     : isCurrent
     ? "fill-emerald-400"
+    : isHinted && outlineMode
+    ? "fill-yellow-300/35"
     : isVisited
     ? "fill-emerald-300"
     : outlineMode
@@ -52,6 +59,8 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
     ? "stroke-emerald-200"
     : isTarget
     ? "stroke-rose-200"
+    : isHinted && outlineMode
+    ? "stroke-yellow-300"
     : outlineMode
     ? "stroke-slate-900 dark:stroke-slate-200"
     : "stroke-slate-900";
@@ -59,6 +68,8 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const strokeWidth =
     isStart || isTarget
       ? "stroke-[1.5]"
+      : isHinted && outlineMode
+      ? "stroke-[1.8]"
       : outlineMode
       ? "stroke-[0.75]"
       : "stroke-[0.5]";
@@ -73,9 +84,9 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
         baseFill,
         baseStroke,
         strokeWidth,
-        "focus:outline-none transition-[filter,fill,stroke] duration-150",
+        "focus:outline-none transition-[filter,fill,stroke,opacity] duration-150",
         isFocused && interactive && "ring-2 ring-offset-2 ring-blue-500",
-        isHinted && "animate-pulse drop-shadow-[0_0_0.4rem_#fde047]",
+        isHinted && "animate-pulse drop-shadow-[0_0_0.45rem_#fde047]",
         !outlineMode &&
           (interactive && canMove ? "cursor-pointer hover:brightness-110" : ""),
         shouldHide && "opacity-0 pointer-events-none"
