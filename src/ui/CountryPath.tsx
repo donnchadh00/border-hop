@@ -26,48 +26,41 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
   const isVisited = !!(iso3 && visited.has(iso3 as any));
   const isCurrent = iso3 === current;
   const isFocused = iso3 === focusIso;
-  const isHinted  = !!(iso3 && hintTarget && iso3 === hintTarget);
-  const isStart   = iso3 && start && iso3 === start;
-  const isTarget  = iso3 && target && iso3 === target;
+  const isHinted = !!(iso3 && hintTarget && iso3 === hintTarget);
+  const isStart = !!(iso3 && start && iso3 === start);
+  const isTarget = !!(iso3 && target && iso3 === target);
 
   const canMove = interactive && !!iso3;
-
   const outlineMode = isOutlineMode(mode);
 
   const shouldHide =
     outlineMode && !isVisited && !isCurrent && !isStart && !isTarget;
 
-  // FILL: non-outline modes have solid land colour
-  const baseFill =
-    isCurrent
-      ? "fill-emerald-400"
-      : isVisited
-        ? "fill-emerald-300"
-        : outlineMode
-          ? "fill-transparent"
-          : "fill-slate-300 dark:fill-slate-800";
+  const baseFill = isStart
+    ? "fill-emerald-500"
+    : isTarget
+    ? "fill-rose-500"
+    : isCurrent
+    ? "fill-emerald-400"
+    : isVisited
+    ? "fill-emerald-300"
+    : outlineMode
+    ? "fill-transparent"
+    : "fill-slate-300 dark:fill-slate-800";
 
-  // STROKE COLOUR
-  const baseStroke = outlineMode
-    ? isStart
-      ? "stroke-blue-500"
-      : isTarget
-        ? "stroke-amber-500"
-        : "stroke-slate-900 dark:stroke-slate-200"
-    : // non-outline (Practice, Time Trial, etc.)
-      isTarget
-      ? "stroke-emerald-400"
-      : isStart
-        ? "stroke-sky-400"
-        : "stroke-slate-900";
+  const baseStroke = isStart
+    ? "stroke-emerald-200"
+    : isTarget
+    ? "stroke-rose-200"
+    : outlineMode
+    ? "stroke-slate-900 dark:stroke-slate-200"
+    : "stroke-slate-900";
 
-  // STROKE WIDTH
-  const strokeWidth = outlineMode
-    ? isStart || isTarget
+  const strokeWidth =
+    isStart || isTarget
       ? "stroke-[1.5]"
-      : "stroke-[0.75]"
-    : isTarget || isStart
-      ? "stroke-[1.2]"
+      : outlineMode
+      ? "stroke-[0.75]"
       : "stroke-[0.5]";
 
   return (
