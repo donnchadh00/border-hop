@@ -176,6 +176,12 @@ export default function HUD() {
     onStart();
   }
 
+  const onModeChange = (m: GameMode) => {
+    setMode(m);
+    clearPickStatus();
+    onStart();
+  };
+
   const relaxDifficulty = () => {
     setDifficulty("Easy" as Difficulty);
     clearPickStatus();
@@ -242,7 +248,7 @@ export default function HUD() {
                   </span>
                   <select
                     value={mode}
-                    onChange={(e) => setMode(e.target.value as GameMode)}
+                    onChange={(e) => onModeChange(e.target.value as GameMode)}
                     className="hud-select min-w-[8rem]"
                   >
                     <option>World</option>
