@@ -101,7 +101,7 @@ export const useGame = create<GameState>()(
             start,
             target,
             current: start,
-            visited: new Set([start]),
+            visited: new Set([start, target]),
             moves: 0,
             hintsLeft: 3,
             focusIso: start,
