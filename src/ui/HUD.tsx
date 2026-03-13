@@ -217,7 +217,12 @@ export default function HUD() {
             {/* Row 1: title, mode/difficulty, search, start/hint */}
             <div className="flex items-center justify-between gap-4 text-sm">
               {/* Title */}
-              <div className="hud-title font-semibold text-base tracking-tight">
+              <div className="hud-title flex items-center gap-2 font-semibold text-base tracking-tight">
+                <img
+                  src="/globe.svg"
+                  alt="Border Hop"
+                  className="w-6 h-6"
+                />
                 Border Hop
               </div>
 
