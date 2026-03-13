@@ -4,7 +4,7 @@ import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
 import type { GameMode } from "../game/modes";
-import { EUROPE } from "../game/modes";
+import { EUROPE, ASIA, AFRICA, AMERICAS } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
 import { useCountryNames } from "../lib/useCountryNames";
 
@@ -127,6 +127,12 @@ export default function HUD() {
   const allowedIso3 =
   mode === "Europe"
     ? EUROPE
+    : mode === "Asia"
+    ? ASIA
+    : mode === "Africa"
+    ? AFRICA
+    : mode === "Americas"
+    ? AMERICAS
     : undefined;
 
   const pct =
@@ -228,6 +234,9 @@ export default function HUD() {
                   >
                     <option>World</option>
                     <option>Europe</option>
+                    <option>Asia</option>
+                    <option>Africa</option>
+                    <option>Americas</option>
                     <option>Practice</option>
                     {/* <option>Time Trial</option> */}
                   </select>
