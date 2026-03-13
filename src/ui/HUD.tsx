@@ -179,6 +179,7 @@ export default function HUD() {
   const onModeChange = (m: GameMode) => {
     setMode(m);
     clearPickStatus();
+    if (m === "Practice") return;
     onStart();
   };
 
