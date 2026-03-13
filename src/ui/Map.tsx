@@ -4,6 +4,7 @@ import {
   geoNaturalEarth1,
   geoOrthographic,
   geoPath,
+  geoGraticule,
 } from "d3-geo";
 import { zoom as d3zoom, zoomIdentity } from "d3-zoom";
 import { select } from "d3-selection";
@@ -51,6 +52,11 @@ export default function Map({ width = 1000, height = 600 }) {
   }, [fc, width, height, mapProjection]);
 
   const path = useMemo(() => geoPath(projection), [projection]);
+
+  const graticulePath = useMemo(() => {
+    const graticule = geoGraticule();
+    return path(graticule());
+  }, [path]);
 
   // Imperative zoom: allow wheel/pinch and middle/right drag; left-click remains for selecting paths
   useEffect(() => {
@@ -168,6 +174,17 @@ export default function Map({ width = 1000, height = 600 }) {
       />
 
       <g ref={gRef} transform="translate(0,0) scale(1)">
+        {graticulePath && (
+          <path
+            d={graticulePath}
+            fill="none"
+            stroke="rgba(255,255,255,0.10)"
+            strokeWidth={0.6}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents="none"
+          />
+        )}
+
         {fc?.features.map((f, i) => {
           const d = path(f as any) || undefined;
           const iso3 = countryIso3From(f.properties, f.id);
