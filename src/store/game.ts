@@ -9,6 +9,8 @@ import { paramsForDifficulty, attemptBudgetFor } from "../game/difficulty";
 
 const NB = neighbours as Record<string, readonly string[]>;
 
+export type MapProjection = "Mercator" | "NaturalEarth" | "Orthographic";
+
 type GameState = {
   // core
   start: ISO3 | null;
@@ -37,9 +39,13 @@ type GameState = {
   lastPickFailed: boolean;
   lastPickMessage: string | null;
 
+  // map projection
+  mapProjection: MapProjection;
+
   // actions
   setMode: (mode: GameMode) => void;
   setDifficulty: (d: Difficulty) => void;
+  setMapProjection: (p: MapProjection) => void;
   setStartTarget: (start: ISO3, target: ISO3) => void;
   randomiseReachableRoute: () => boolean;
   moveTo: (iso3: ISO3) => void;
@@ -75,6 +81,7 @@ export const useGame = create<GameState>()(
       _timer: null,
 
       difficulty: "Normal",
+      mapProjection: "Mercator",
 
       lastPickFailed: false,
       lastPickMessage: null,
@@ -89,6 +96,8 @@ export const useGame = create<GameState>()(
       },
 
       setDifficulty: (d) => set({ difficulty: d }),
+
+      setMapProjection: (p) => set({ mapProjection: p }),
 
       setStartTarget: (start, target) =>
         set(() => {
@@ -158,7 +167,6 @@ export const useGame = create<GameState>()(
           }
 
           const isNewMove = s.current && s.current !== iso3;
-
           const nextMoves = isNewMove ? s.moves + 1 : s.moves;
 
           let failed: boolean = s.failed;
