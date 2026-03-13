@@ -200,6 +200,12 @@ export default function HUD() {
     return () => clearTimeout(id);
   }, [dupGuessIso, clearDupGuess]);
 
+  useEffect(() => {
+    if (start || target) return;
+    const ok = randomiseReachableRoute();
+    if (ok) startTimerIfNeeded();
+  }, [start, target, randomiseReachableRoute, startTimerIfNeeded]);
+
   const won =
     !!start && !!target &&
     isWinningPosition(start, target, visited);
