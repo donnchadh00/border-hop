@@ -3,7 +3,7 @@
 
 [Play the live demo](https://border-hop-amber.vercel.app/)
 
-Border Hop is an interactive world-map puzzle game where players must navigate from a **start country** to a **target country** using only valid **land borders** ("hops"). The game features multiple modes including **World**, **Europe**, and **Practice**, each offering its own challenge. It also incorporates hints, difficulty settings, animated toasts, real-time path visualisation, and a clean, dark, responsive UI.
+Border Hop is an interactive world-map puzzle game where players must navigate from a **start country** to a **target country** using only valid **land borders** ("hops"). The game features multiple modes including **World**, **Europe**, **Asia**, **Africa**, **Americas**, and **Practice**, each offering its own challenge. It also incorporates hints, difficulty settings, animated toasts, real-time path visualisation, and a clean, dark, responsive UI.
 
 ## Gameplay
 
@@ -28,9 +28,12 @@ The challenge comes from:
 - Smooth zoom/pan with automatic "fit to route" framing of start & destination.
 
 ### Game Modes  
-- **World** - Standard rules, all countries.
-- **Europe** - Standard rules, EU countries only. 
-- **Practice** - All countries visible, experiment with routes.  
+- **World** – Standard rules using the full global map.  
+- **Europe** – Play within the European region only.  
+- **Asia** – Play within the Asian region only.  
+- **Africa** – Play within the African region only.  
+- **Americas** – Play within North and South America.  
+- **Practice** – All countries visible; experiment with routes freely.  
 
 ### Difficulty System  
 - Four presets: Easy, Normal, Hard, Extreme.  
