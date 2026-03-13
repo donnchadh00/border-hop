@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useGame } from "../store/game";
+import { useGame, type MapProjection } from "../store/game";
 import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
@@ -106,6 +106,8 @@ export default function HUD() {
     setMode,
     difficulty,
     setDifficulty,
+    mapProjection,
+    setMapProjection,
     randomiseReachableRoute,
     startTimerIfNeeded,
     lastPickFailed,
@@ -262,6 +264,23 @@ export default function HUD() {
                     <option>Extreme</option>
                   </select>
                 </div>
+
+                <div className="flex flex-col gap-0.5">
+                  <span className="hud-label">
+                    Projection
+                  </span>
+                  <select
+                    value={mapProjection}
+                    onChange={(e) => setMapProjection(e.target.value as MapProjection)}
+                    className="hud-select min-w-[8rem]"
+                  >
+                    <option value="Mercator">Mercator</option>
+                    <option value="NaturalEarth">Natural Earth</option>
+                    {/* <option value="Orthographic">Orthographic</option> */}
+                  </select>
+                </div>
+
+
               </div>
 
               {/* Search bar */}

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { geoMercator, geoPath } from "d3-geo";
+import {
+  geoMercator,
+  geoNaturalEarth1,
+  geoOrthographic,
+  geoPath,
+} from "d3-geo";
 import { zoom as d3zoom, zoomIdentity } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
@@ -22,7 +27,7 @@ export default function Map({ width = 1000, height = 600 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const zoomRef = useRef<ReturnType<typeof d3zoom<SVGSVGElement, unknown>> | null>(null);
 
-  const { start, target } = useGame();
+  const { start, target, mapProjection } = useGame();
 
   useEffect(() => {
     fetch("/countries.cleaned.simplified.geojson")
@@ -31,14 +36,20 @@ export default function Map({ width = 1000, height = 600 }) {
       .catch((e) => console.error("Failed to load countries.cleaned.simplified.geojson", e));
   }, []);
 
-  const projection = useMemo(
-    () =>
-      geoMercator().fitSize(
-        [width, height],
-        fc ?? { type: "FeatureCollection", features: [] }
-      ),
-    [fc, width, height]
-  );
+  const projection = useMemo(() => {
+    const empty = fc ?? { type: "FeatureCollection", features: [] };
+
+    switch (mapProjection) {
+      case "NaturalEarth":
+        return geoNaturalEarth1().fitSize([width, height], empty);
+      case "Orthographic":
+        return geoOrthographic().fitSize([width, height], empty);
+      case "Mercator":
+      default:
+        return geoMercator().fitSize([width, height], empty);
+    }
+  }, [fc, width, height, mapProjection]);
+
   const path = useMemo(() => geoPath(projection), [projection]);
 
   // Imperative zoom: allow wheel/pinch and middle/right drag; left-click remains for selecting paths
@@ -60,8 +71,12 @@ export default function Map({ width = 1000, height = 600 }) {
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
-        if (event.type === "mousedown" && (event.button === 0 || event.button === 1 || event.button === 2))
+        if (
+          event.type === "mousedown" &&
+          (event.button === 0 || event.button === 1 || event.button === 2)
+        ) {
           return true;
+        }
         if (event.ctrlKey || event.metaKey || event.shiftKey) return true;
         // Otherwise (left button without modifiers): let clicks go to paths
         return false;
