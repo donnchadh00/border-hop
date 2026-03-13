@@ -17,7 +17,7 @@ The challenge comes from:
 
 ## Demo
 
-![examplegif](docs/game.gif)
+![examplegif](docs/demo.gif)
 > _Example gameplay: Start in one country and hop your way to the target._
 
 ## **Features**
