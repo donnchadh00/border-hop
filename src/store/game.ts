@@ -76,12 +76,12 @@ export const useGame = create<GameState>()(
       focusIso: null,
       hintTarget: null,
 
-      mode: "Practice",
+      mode: "World",
       timeLeft: null,
       _timer: null,
 
       difficulty: "Normal",
-      mapProjection: "Mercator",
+      mapProjection: "NaturalEarth",
 
       lastPickFailed: false,
       lastPickMessage: null,
