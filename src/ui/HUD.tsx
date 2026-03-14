@@ -3,7 +3,7 @@ import { useGame, type MapProjection } from "../store/game";
 import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
 import CountrySearch from "./CountrySearch";
-import type { GameMode } from "../game/modes";
+import type { GameMode, ISO3 } from "../game/modes";
 import { EUROPE, ASIA, AFRICA, AMERICAS } from "../game/modes";
 import type { Difficulty } from "../game/difficulty";
 import { useCountryNames } from "../lib/useCountryNames";
@@ -98,7 +98,7 @@ export default function HUD() {
     visited,
     moves,
     hintsLeft,
-    useHint,
+    useHint: spendHint,
     setHintTarget,
     hintTarget,
     reset,
@@ -162,15 +162,15 @@ export default function HUD() {
       ? shortest[shortest.indexOf(current) + 1]
       : shortest?.[0];
   const optimalHops = shortest ? shortest.length - 1 : null;
-  const optimalPathNames = shortest ? shortest.map((iso) => nameOf(iso as any)) : null;
+  const optimalPathNames = shortest ? shortest.map((iso) => nameOf(iso)) : null;
   const visitedNames = Array.from(visited)
     .filter((iso) => iso !== target)
     .map((iso) => nameOf(iso));
 
   const onHint = () => {
     if (!current || !nextHop || hintsLeft === 0) return;
-    useHint();
-    setHintTarget(nextHop as any);
+    spendHint();
+    setHintTarget(nextHop as ISO3);
   };
 
   const onDifficultyChange = (d: Difficulty) => {

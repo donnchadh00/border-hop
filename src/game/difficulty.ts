@@ -16,9 +16,12 @@ export function paramsForDifficulty(d: Difficulty) {
 
 export function attemptBudgetFor(
   d: Difficulty,
-  _minHops: number,
-  _poolSize: number
+  minHops: number,
+  poolSize: number
 ) {
+  void minHops;
+  void poolSize;
+
   switch (d) {
     case "Easy": return 200;
     case "Normal": return 400;

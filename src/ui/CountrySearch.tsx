@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../store/game";
 import { countryIso3From, countryNameFrom } from "../lib/countries";
+import type { ISO3 } from "../game/modes";
 import type {
   FeatureCollection,
   Feature,
@@ -78,7 +79,7 @@ export default function CountrySearch({
   }, [q, filtered.length]);
 
   function tryMove(iso3: string) {
-    moveTo(iso3 as any);
+    moveTo(iso3 as ISO3);
     setQ("");
     inputRef.current?.focus();
   }

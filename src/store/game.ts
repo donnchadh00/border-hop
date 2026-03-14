@@ -59,6 +59,10 @@ type GameState = {
   clearDupGuess: () => void;
 };
 
+type PersistedGameState = GameState & {
+  visited: ISO3[] | Set<ISO3>;
+};
+
 export const useGame = create<GameState>()(
   persist(
     (set, get) => ({
@@ -257,8 +261,10 @@ export const useGame = create<GameState>()(
         dupGuessIso: null,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state && Array.isArray((state as any).visited)) {
-          (state as any).visited = new Set((state as any).visited);
+        const persistedState = state as PersistedGameState | undefined;
+
+        if (persistedState && Array.isArray(persistedState.visited)) {
+          persistedState.visited = new Set(persistedState.visited);
         }
       },
     }

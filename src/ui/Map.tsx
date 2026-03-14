@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  type GeoPermissibleObjects,
   geoMercator,
   geoNaturalEarth1,
   geoOrthographic,
   geoPath,
   geoGraticule,
 } from "d3-geo";
-import { zoom as d3zoom, zoomIdentity } from "d3-zoom";
+import { zoom as d3zoom, zoomIdentity, type D3ZoomEvent } from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
 import { useGame } from "../store/game";
@@ -20,6 +21,7 @@ import type {
 
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 type F = Feature<Geometry, GeoJsonProperties>;
+type ZoomFilterEvent = MouseEvent | WheelEvent | TouchEvent;
 
 export default function Map({ width = 1000, height = 600 }) {
   const [fc, setFc] = useState<CountryFC | null>(null);
@@ -70,24 +72,34 @@ export default function Map({ width = 1000, height = 600 }) {
 
     const zoomBehaviour = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.8, 8])
-      .filter((event: any) => {
+      .filter((event: ZoomFilterEvent) => {
         // Allow zoom for:
         // - wheel/pinch
         // - right button drag (button === 2)
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
+        if (event instanceof MouseEvent && event.type === "mousedown") {
+          if (
+            event.button === 0 ||
+            event.button === 1 ||
+            event.button === 2
+          ) {
+            return true;
+          }
+        }
         if (
-          event.type === "mousedown" &&
-          (event.button === 0 || event.button === 1 || event.button === 2)
+          "ctrlKey" in event &&
+          "metaKey" in event &&
+          "shiftKey" in event &&
+          (event.ctrlKey || event.metaKey || event.shiftKey)
         ) {
           return true;
         }
-        if (event.ctrlKey || event.metaKey || event.shiftKey) return true;
         // Otherwise (left button without modifiers): let clicks go to paths
         return false;
       })
-      .on("zoom", (event) => {
+      .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
         const t = event.transform.toString();
         if (raf) {
           pendingTransform = t;
@@ -102,7 +114,7 @@ export default function Map({ width = 1000, height = 600 }) {
       });
 
     zoomRef.current = zoomBehaviour;
-    svg.call(zoomBehaviour as any);
+    svg.call(zoomBehaviour);
 
     // Enable context menu again (right click)
     svg.on("contextmenu", null);
@@ -129,7 +141,9 @@ export default function Map({ width = 1000, height = 600 }) {
       features,
     };
 
-    const [[x0, y0], [x1, y1]] = path.bounds(collection as any);
+    const [[x0, y0], [x1, y1]] = path.bounds(
+      collection as GeoPermissibleObjects
+    );
     const dx = x1 - x0 || 1;
     const dy = y1 - y0 || 1;
     const cx = (x0 + x1) / 2;
@@ -155,7 +169,7 @@ export default function Map({ width = 1000, height = 600 }) {
     const t = zoomIdentity.translate(translateX, translateY).scale(scale);
 
     const svgSelection = select(svgRef.current);
-    svgSelection.call(zoomRef.current.transform as any, t);
+    svgSelection.call(zoomRef.current.transform, t);
   }, [fc, start, target, path, width, height]);
 
   return (
@@ -186,7 +200,7 @@ export default function Map({ width = 1000, height = 600 }) {
         )}
 
         {fc?.features.map((f, i) => {
-          const d = path(f as any) || undefined;
+          const d = path(f as GeoPermissibleObjects) || undefined;
           const iso3 = countryIso3From(f.properties, f.id);
           const name = countryNameFrom(f.properties);
           return (

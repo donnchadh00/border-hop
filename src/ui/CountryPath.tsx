@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { useGame } from "../store/game";
-import { isOutlineMode } from "../game/modes";
+import { isOutlineMode, type ISO3 } from "../game/modes";
 
 type Props = {
   d: string | undefined;
@@ -22,8 +22,9 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
     hintTarget,
     mode,
   } = useGame();
+  const countryIso = iso3 as ISO3 | undefined;
 
-  const isVisited = !!(iso3 && visited.has(iso3 as any));
+  const isVisited = !!(countryIso && visited.has(countryIso));
   const isCurrent = iso3 === current;
   const isFocused = iso3 === focusIso;
   const isHinted = !!(iso3 && hintTarget && iso3 === hintTarget);
@@ -95,17 +96,17 @@ function CountryPathBase({ d, iso3, name, interactive = true }: Props) {
         !interactive
           ? undefined
           : () => {
-              if (iso3 && canMove) moveTo(iso3 as any);
+              if (countryIso && canMove) moveTo(countryIso);
             }
       }
-      onFocus={!interactive ? undefined : () => iso3 && setFocus(iso3 as any)}
+      onFocus={!interactive ? undefined : () => countryIso && setFocus(countryIso)}
       onKeyDown={
         !interactive
           ? undefined
           : (e) => {
-              if (e.key === "Enter" && iso3 && canMove) {
+              if (e.key === "Enter" && countryIso && canMove) {
                 e.preventDefault();
-                moveTo(iso3 as any);
+                moveTo(countryIso);
               }
             }
       }
