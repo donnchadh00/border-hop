@@ -110,7 +110,7 @@ function ResultCard({
   if (minimized) {
     return (
       <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-4 sm:bottom-4">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/92 px-3 py-2 text-slate-100 shadow-2xl backdrop-blur-md">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/90 px-3 py-2 text-slate-100 shadow-sm backdrop-blur-md">
           <div className="text-sm font-medium">{title}</div>
           <button
             onClick={onPrimaryAction}
@@ -121,7 +121,7 @@ function ResultCard({
           <button
             onClick={onToggleMinimized}
             aria-label="Expand result card"
-            className="rounded-lg bg-sky-400/20 px-2 py-1 text-xs font-semibold text-sky-100 ring-1 ring-sky-300/30"
+            className="ml-auto rounded-lg bg-sky-400/30 px-2 py-1 text-xs font-semibold text-sky-50 ring-1 ring-sky-300/45"
           >
             +
           </button>
@@ -131,13 +131,13 @@ function ResultCard({
   }
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 w-auto rounded-2xl border border-white/10 bg-slate-950/92 p-4 text-slate-100 shadow-2xl backdrop-blur-md sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(92vw,28rem)] sm:p-5">
+    <div className="fixed inset-x-3 bottom-3 z-50 w-auto rounded-2xl border border-slate-700 bg-slate-900/90 p-4 text-slate-100 shadow-sm backdrop-blur-md sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(92vw,28rem)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="text-lg font-semibold">{title}</div>
         <button
           onClick={onToggleMinimized}
           aria-label="Minimize result card"
-          className="rounded-lg bg-sky-400/20 px-2 py-1 text-xs font-semibold text-sky-100 ring-1 ring-sky-300/30"
+          className="rounded-lg bg-sky-400/30 px-2 py-1 text-xs font-semibold text-sky-50 ring-1 ring-sky-300/45"
         >
           -
         </button>
