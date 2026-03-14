@@ -225,10 +225,12 @@ export default function Map({ width = 1000, height = 600 }) {
       .filter((event: ZoomFilterEvent) => {
         // Allow zoom for:
         // - wheel/pinch
+        // - touch drag / pinch
         // - right button drag (button === 2)
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
+        if (event instanceof TouchEvent) return true;
         if (event instanceof MouseEvent && event.type === "mousedown") {
           if (
             event.button === 0 ||
