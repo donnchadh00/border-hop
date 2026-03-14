@@ -96,14 +96,12 @@ function ResultCard({
   optimalPathNames,
   primaryActionLabel,
   onPrimaryAction,
-  onReset,
 }: {
   title: string;
   summary: React.ReactNode;
   optimalPathNames: string[] | null;
   primaryActionLabel: string;
   onPrimaryAction: () => void;
-  onReset: () => void;
 }) {
   return (
     <div className="fixed inset-x-3 bottom-3 z-50 w-auto rounded-2xl border border-white/10 bg-slate-950/92 p-4 text-slate-100 shadow-2xl backdrop-blur-md sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(92vw,28rem)] sm:p-5">
@@ -117,18 +115,12 @@ function ResultCard({
           </div>
         </div>
       )}
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-4">
         <button
           onClick={onPrimaryAction}
-          className="px-4 py-2 rounded-lg bg-white text-slate-950"
+          className="w-full px-4 py-2 rounded-lg bg-white text-slate-950"
         >
           {primaryActionLabel}
-        </button>
-        <button
-          onClick={onReset}
-          className="px-4 py-2 rounded-lg border border-white/15 text-slate-100"
-        >
-          Reset
         </button>
       </div>
     </div>
@@ -626,7 +618,6 @@ export default function HUD() {
           optimalPathNames={optimalPathNames}
           primaryActionLabel="Play again"
           onPrimaryAction={playAgain}
-          onReset={reset}
         />
       )}
 
@@ -649,7 +640,6 @@ export default function HUD() {
           optimalPathNames={optimalPathNames}
           primaryActionLabel="Try a new route"
           onPrimaryAction={playAgain}
-          onReset={reset}
         />
       )}
     </>
