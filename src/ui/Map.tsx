@@ -28,7 +28,12 @@ import type {
 
 type CountryFC = FeatureCollection<Geometry, GeoJsonProperties>;
 type F = Feature<Geometry, GeoJsonProperties>;
-type ZoomFilterEvent = MouseEvent | WheelEvent | TouchEvent;
+type ZoomFilterEvent = Event & {
+  button?: number;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+};
 type RevealStepMap = Partial<Record<ISO3, number>>;
 
 const NB = neighbours as Record<ISO3, readonly ISO3[]>;
@@ -230,8 +235,15 @@ export default function Map({ width = 1000, height = 600 }) {
         // - middle button drag (button === 1)
         // - modifier+drag (ctrl/cmd/shift)
         if (event.type === "wheel") return true;
-        if (event instanceof TouchEvent) return true;
-        if (event instanceof MouseEvent && event.type === "mousedown") {
+        if (
+          event.type === "touchstart" ||
+          event.type === "touchmove" ||
+          event.type === "pointerdown" ||
+          event.type === "pointermove"
+        ) {
+          return true;
+        }
+        if (event.type === "mousedown") {
           if (
             event.button === 0 ||
             event.button === 1 ||
@@ -240,12 +252,7 @@ export default function Map({ width = 1000, height = 600 }) {
             return true;
           }
         }
-        if (
-          "ctrlKey" in event &&
-          "metaKey" in event &&
-          "shiftKey" in event &&
-          (event.ctrlKey || event.metaKey || event.shiftKey)
-        ) {
+        if (event.ctrlKey || event.metaKey || event.shiftKey) {
           return true;
         }
         // Otherwise (left button without modifiers): let clicks go to paths
