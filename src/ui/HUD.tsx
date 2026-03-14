@@ -165,6 +165,7 @@ function ResultCard({
 
 export default function HUD() {
   const [resultCardMinimized, setResultCardMinimized] = useState(false);
+  const [mobileOptionsOpen, setMobileOptionsOpen] = useState(false);
   const {
     start,
     target,
@@ -559,12 +560,20 @@ export default function HUD() {
               </div>
             </div>
 
-            <details className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-              <summary className="cursor-pointer list-none text-sm font-medium">
-                Options
-              </summary>
-              <div className="mt-3 flex flex-col gap-3">
-                <div className="grid grid-cols-1 gap-2">
+            <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              <button
+                type="button"
+                onClick={() => setMobileOptionsOpen((value) => !value)}
+                className="flex w-full items-center justify-between gap-3 text-left text-sm font-medium"
+              >
+                <span>Options</span>
+                <span className="rounded-lg bg-sky-400/30 px-2 py-1 text-xs font-semibold text-sky-50 ring-1 ring-sky-300/45">
+                  {mobileOptionsOpen ? "-" : "+"}
+                </span>
+              </button>
+              {mobileOptionsOpen && (
+                <div className="mt-3 flex flex-col gap-3">
+                  <div className="grid grid-cols-1 gap-2">
                   <div className="flex flex-col gap-0.5">
                     <span className="hud-label">Mode</span>
                     <select
@@ -636,8 +645,9 @@ export default function HUD() {
                     </div>
                   )}
                 </div>
-              </div>
-            </details>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
