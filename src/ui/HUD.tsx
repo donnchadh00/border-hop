@@ -90,6 +90,51 @@ function RouteMarker({
   );
 }
 
+function ResultCard({
+  title,
+  summary,
+  optimalPathNames,
+  primaryActionLabel,
+  onPrimaryAction,
+  onReset,
+}: {
+  title: string;
+  summary: React.ReactNode;
+  optimalPathNames: string[] | null;
+  primaryActionLabel: string;
+  onPrimaryAction: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-2xl border border-white/10 bg-slate-950/92 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
+      <div className="text-lg font-semibold">{title}</div>
+      <div className="mt-2 text-sm text-slate-300">{summary}</div>
+      {optimalPathNames && (
+        <div className="mt-4 text-sm text-slate-300">
+          <div className="mb-1 font-medium text-slate-100">Shortest path</div>
+          <div className="text-xs sm:text-sm break-words">
+            {optimalPathNames.join(" → ")}
+          </div>
+        </div>
+      )}
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={onPrimaryAction}
+          className="px-4 py-2 rounded-lg bg-white text-slate-950"
+        >
+          {primaryActionLabel}
+        </button>
+        <button
+          onClick={onReset}
+          className="px-4 py-2 rounded-lg border border-white/15 text-slate-100"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function HUD() {
   const {
     start,
@@ -443,12 +488,12 @@ export default function HUD() {
         </div>
       </div>
 
-      {/* Win overlay */}
+      {/* Win result card */}
       {won && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)] max-h-[90vh] overflow-y-auto">
-            <div className="text-xl font-semibold mb-2">You made it!</div>
-            <div className="opacity-80 mb-4">
+        <ResultCard
+          title="You made it!"
+          summary={
+            <>
               Path from <b>{nameOf(start)}</b> to <b>{nameOf(target)}</b> in{" "}
               <b>{moves + 1}</b> moves.
               {optimalHops != null && (
@@ -457,39 +502,21 @@ export default function HUD() {
                   (shortest path is <b>{optimalHops}</b> moves)
                 </>
               )}
-            </div>
-            {optimalPathNames && (
-              <div className="text-sm opacity-80 mb-4">
-                <div className="font-medium mb-1">Shortest path:</div>
-                <div className="text-xs sm:text-sm break-words">
-                  {optimalPathNames.join(" → ")}
-                </div>
-              </div>
-            )}
-            <div className="flex gap-2">
-              <button
-                onClick={playAgain}
-                className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black"
-              >
-                Play again
-              </button>
-              <button
-                onClick={reset}
-                className="px-4 py-2 rounded-lg border"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+          optimalPathNames={optimalPathNames}
+          primaryActionLabel="Play again"
+          onPrimaryAction={playAgain}
+          onReset={reset}
+        />
       )}
 
-      {/* Lose overlay */}
+      {/* Lose result card */}
       {lost && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 rounded-2xl shadow-2xl w-[min(92vw,28rem)] max-h-[90vh] overflow-y-auto">
-            <div className="text-xl font-semibold mb-2">Out of hops!</div>
-            <div className="opacity-80 mb-4">
+        <ResultCard
+          title="Out of hops!"
+          summary={
+            <>
               You used <b>{moves + 1}</b>
               {hopCap != null && (
                 <>
@@ -498,31 +525,13 @@ export default function HUD() {
                 </>
               )}{" "}
               hops and didn’t reach the target.
-            </div>
-            {optimalPathNames && (
-              <div className="text-sm opacity-80 mb-4">
-                <div className="font-medium mb-1">Shortest path:</div>
-                <div className="text-xs sm:text-sm break-words">
-                  {optimalPathNames.join(" → ")}
-                </div>
-              </div>
-            )}
-            <div className="flex gap-2">
-              <button
-                onClick={playAgain}
-                className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black"
-              >
-                Try a new route
-              </button>
-              <button
-                onClick={reset}
-                className="px-4 py-2 rounded-lg border"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+          optimalPathNames={optimalPathNames}
+          primaryActionLabel="Try a new route"
+          onPrimaryAction={playAgain}
+          onReset={reset}
+        />
       )}
     </>
   );
