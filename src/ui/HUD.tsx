@@ -163,6 +163,9 @@ export default function HUD() {
       : shortest?.[0];
   const optimalHops = shortest ? shortest.length - 1 : null;
   const optimalPathNames = shortest ? shortest.map((iso) => nameOf(iso as any)) : null;
+  const visitedNames = Array.from(visited)
+    .filter((iso) => iso !== target)
+    .map((iso) => nameOf(iso));
 
   const onHint = () => {
     if (!current || !nextHop || hintsLeft === 0) return;
@@ -394,9 +397,7 @@ export default function HUD() {
               {/* Visited summary */}
               <div className="truncate max-w-full sm:max-w-xl">
                 Visited:{" "}
-                {Array.from(visited)
-                  .map((iso) => nameOf(iso))
-                  .join(", ") || "-"}
+                {visitedNames.join(", ") || "-"}
               </div>
 
               {/* Toasts */}
