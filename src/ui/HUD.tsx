@@ -167,9 +167,9 @@ export default function HUD() {
   const hopCap = maxMoves;
   const hopsUsed = moves;
 
-  const overCap = hopCap != null ? hopsUsed >= hopCap : false;
+  const atCap = hopCap != null ? hopsUsed === hopCap : false;
   const hopsLeft = hopCap != null ? Math.max(0, hopCap - hopsUsed) : Infinity;
-  const nearCap = hopCap != null ? !overCap && hopsLeft <= 2 : false;
+  const nearCap = hopCap != null ? !atCap && hopsLeft <= 2 : false;
 
   const allowedIso3 =
   mode === "Europe"
@@ -385,9 +385,9 @@ export default function HUD() {
                           near cap
                         </span>
                       )}
-                      {overCap && (
+                      {atCap && (
                         <span className="hud-chip hud-chip-error ml-2">
-                          over cap
+                          at cap
                         </span>
                       )}
                     </>
@@ -400,7 +400,7 @@ export default function HUD() {
                   <div className="hud-hops-track mt-1 h-1.5 w-56 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${
-                        overCap
+                        atCap
                           ? "hud-hops-fill-error"
                           : nearCap
                           ? "hud-hops-fill-warning"
