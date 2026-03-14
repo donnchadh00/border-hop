@@ -65,7 +65,7 @@ function CountryPathBase({
     ? "fill-emerald-300"
     : outlineMode
     ? "fill-transparent"
-    : "fill-slate-300 dark:fill-slate-800";
+    : "fill-slate-300 dark:fill-slate-700";
 
   const baseStroke = isStart
     ? "stroke-emerald-200"
@@ -76,8 +76,8 @@ function CountryPathBase({
     : isRevealed
     ? "stroke-sky-200/60"
     : outlineMode
-    ? "stroke-slate-900 dark:stroke-slate-200"
-    : "stroke-slate-900";
+    ? "stroke-slate-900 dark:stroke-slate-100"
+    : "stroke-slate-900 dark:stroke-slate-500";
 
   const strokeWidth =
     isStart || isTarget
@@ -88,7 +88,7 @@ function CountryPathBase({
       ? "stroke-[0.9]"
       : outlineMode
       ? "stroke-[0.75]"
-      : "stroke-[0.5]";
+      : "stroke-[0.65]";
 
   return (
     <path
