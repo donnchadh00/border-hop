@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGame, type MapProjection } from "../store/game";
 import neighbours from "../data/neighbours.json";
 import { bfsShortestPath } from "../game/graph";
@@ -96,16 +96,52 @@ function ResultCard({
   optimalPathNames,
   primaryActionLabel,
   onPrimaryAction,
+  minimized,
+  onToggleMinimized,
 }: {
   title: string;
   summary: React.ReactNode;
   optimalPathNames: string[] | null;
   primaryActionLabel: string;
   onPrimaryAction: () => void;
+  minimized: boolean;
+  onToggleMinimized: () => void;
 }) {
+  if (minimized) {
+    return (
+      <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-4 sm:bottom-4">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/92 px-3 py-2 text-slate-100 shadow-2xl backdrop-blur-md">
+          <div className="text-sm font-medium">{title}</div>
+          <button
+            onClick={onPrimaryAction}
+            className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-950"
+          >
+            {primaryActionLabel}
+          </button>
+          <button
+            onClick={onToggleMinimized}
+            aria-label="Expand result card"
+            className="rounded-lg bg-sky-400/20 px-2 py-1 text-xs font-semibold text-sky-100 ring-1 ring-sky-300/30"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-x-3 bottom-3 z-50 w-auto rounded-2xl border border-white/10 bg-slate-950/92 p-4 text-slate-100 shadow-2xl backdrop-blur-md sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(92vw,28rem)] sm:p-5">
-      <div className="text-lg font-semibold">{title}</div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="text-lg font-semibold">{title}</div>
+        <button
+          onClick={onToggleMinimized}
+          aria-label="Minimize result card"
+          className="rounded-lg bg-sky-400/20 px-2 py-1 text-xs font-semibold text-sky-100 ring-1 ring-sky-300/30"
+        >
+          -
+        </button>
+      </div>
       <div className="mt-2 text-sm text-slate-300">{summary}</div>
       {optimalPathNames && (
         <div className="mt-4 text-sm text-slate-300">
@@ -128,6 +164,7 @@ function ResultCard({
 }
 
 export default function HUD() {
+  const [resultCardMinimized, setResultCardMinimized] = useState(false);
   const {
     start,
     target,
@@ -257,6 +294,12 @@ export default function HUD() {
     !!start && !!target &&
     isWinningPosition(start, target, visited);
   const lost = failed && !won;
+
+  useEffect(() => {
+    if (won || lost) {
+      setResultCardMinimized(false);
+    }
+  }, [won, lost]);
 
   const playAgain = () => {
     reset();
@@ -618,6 +661,8 @@ export default function HUD() {
           optimalPathNames={optimalPathNames}
           primaryActionLabel="Play again"
           onPrimaryAction={playAgain}
+          minimized={resultCardMinimized}
+          onToggleMinimized={() => setResultCardMinimized((value) => !value)}
         />
       )}
 
@@ -640,6 +685,8 @@ export default function HUD() {
           optimalPathNames={optimalPathNames}
           primaryActionLabel="Try a new route"
           onPrimaryAction={playAgain}
+          minimized={resultCardMinimized}
+          onToggleMinimized={() => setResultCardMinimized((value) => !value)}
         />
       )}
     </>
