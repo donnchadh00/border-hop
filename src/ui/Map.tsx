@@ -353,7 +353,7 @@ export default function Map({ width = 1000, height = 600 }) {
     <svg
       ref={svgRef}
       viewBox={`0 0 ${width} ${height}`}
-      className="w-full h-dvh bg-slate-950"
+      className="block h-dvh w-full bg-slate-950"
     >
       {/* Map background (ocean / world background) */}
       <rect

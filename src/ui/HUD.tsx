@@ -77,7 +77,7 @@ function RouteMarker({
 
   return (
     <div
-      className={`rounded-xl border px-3 py-2 min-w-[10rem] ${toneClasses}`}
+      className={`rounded-xl border px-3 py-2 min-w-0 flex-1 sm:flex-none sm:min-w-[10rem] ${toneClasses}`}
     >
       <div className="flex items-center gap-2 text-[10px] sm:text-[11px] uppercase tracking-[0.16em] opacity-80">
         <span className={`inline-block h-2.5 w-2.5 rounded-full ${dotClasses}`} />
@@ -106,7 +106,7 @@ function ResultCard({
   onReset: () => void;
 }) {
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-2xl border border-white/10 bg-slate-950/92 p-5 text-slate-100 shadow-2xl backdrop-blur-md">
+    <div className="fixed inset-x-3 bottom-3 z-50 w-auto rounded-2xl border border-white/10 bg-slate-950/92 p-4 text-slate-100 shadow-2xl backdrop-blur-md sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(92vw,28rem)] sm:p-5">
       <div className="text-lg font-semibold">{title}</div>
       <div className="mt-2 text-sm text-slate-300">{summary}</div>
       {optimalPathNames && (
@@ -117,7 +117,7 @@ function ResultCard({
           </div>
         </div>
       )}
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <button
           onClick={onPrimaryAction}
           className="px-4 py-2 rounded-lg bg-white text-slate-950"
@@ -273,8 +273,8 @@ export default function HUD() {
 
   return (
     <>
-      {/* Top HUD bar */}
-      <div className="fixed inset-x-0 top-0 z-40">
+      {/* Desktop HUD */}
+      <div className="fixed inset-x-0 top-0 z-40 hidden sm:block">
         <div className="hud-bar h-full w-full flex justify-center">
           <div className="hud-inner h-full w-full max-w-6xl px-4 py-2 flex flex-col gap-2">
             {/* Row 1: title, mode/difficulty, search, start/hint */}
@@ -306,7 +306,6 @@ export default function HUD() {
                     <option>Africa</option>
                     <option>Americas</option>
                     <option>Practice</option>
-                    {/* <option>Time Trial</option> */}
                   </select>
                 </div>
 
@@ -337,14 +336,10 @@ export default function HUD() {
                   >
                     <option value="Mercator">Mercator</option>
                     <option value="NaturalEarth">Natural Earth</option>
-                    {/* <option value="Orthographic">Orthographic</option> */}
                   </select>
                 </div>
-
-
               </div>
 
-              {/* Search bar */}
               <div className="w-full sm:w-auto flex-shrink-0">
                 <CountrySearch
                   source="/countries.cleaned.simplified.geojson"
@@ -352,7 +347,6 @@ export default function HUD() {
                 />
               </div>
 
-              {/* Start / Hint buttons */}
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={onStart}
@@ -370,9 +364,7 @@ export default function HUD() {
               </div>
             </div>
 
-            {/* Row 2: hops, route summary, visited, toasts */}
             <div className="flex flex-wrap items-center gap-3 text-xs">
-              {/* Hops indicator */}
               <div className="min-w-[14rem]">
                 <div>
                   Hops:&nbsp;
@@ -412,25 +404,12 @@ export default function HUD() {
                 )}
               </div>
 
-              {/* Route summary */}
               <div className="flex flex-wrap items-stretch gap-2">
                 {start ? (
                   <>
-                    <RouteMarker
-                      label="Start"
-                      value={nameOf(start)}
-                      tone="start"
-                    />
-                    <RouteMarker
-                      label="Target"
-                      value={nameOf(target)}
-                      tone="target"
-                    />
-                    <RouteMarker
-                      label="Current"
-                      value={nameOf(current)}
-                      tone="current"
-                    />
+                    <RouteMarker label="Start" value={nameOf(start)} tone="start" />
+                    <RouteMarker label="Target" value={nameOf(target)} tone="target" />
+                    <RouteMarker label="Current" value={nameOf(current)} tone="current" />
                   </>
                 ) : (
                   <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs sm:text-sm text-slate-300">
@@ -439,13 +418,10 @@ export default function HUD() {
                 )}
               </div>
 
-              {/* Visited summary */}
               <div className="truncate max-w-full sm:max-w-xl">
-                Visited:{" "}
-                {visitedNames.join(", ") || "-"}
+                Visited: {visitedNames.join(", ") || "-"}
               </div>
 
-              {/* Toasts */}
               <div className="flex flex-wrap items-start gap-2">
                 {dupGuessIso && (
                   <div className="hud-toast hud-toast-info text-[11px] max-w-xs">
@@ -484,6 +460,147 @@ export default function HUD() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile HUD */}
+      <div className="fixed inset-x-0 top-0 z-40 sm:hidden">
+        <div className="hud-bar mx-2 mt-2 rounded-2xl border border-white/10">
+          <div className="px-3 py-2.5 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="hud-title flex items-center gap-2 text-sm font-semibold tracking-tight">
+                <img
+                  src="/globe.svg"
+                  alt="Border Hop"
+                  className="h-5 w-5"
+                />
+                Border Hop
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={onStart}
+                  className="hud-button-primary px-3 py-1.5 text-xs"
+                >
+                  Start
+                </button>
+                <button
+                  onClick={onHint}
+                  disabled={!shortest || !current || hintsLeft === 0}
+                  className="hud-button-secondary px-2.5 py-1.5 text-xs disabled:opacity-50"
+                >
+                  Hint {hintsLeft}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-300">
+              <span>
+                <span className="text-slate-400">Mode:</span> {mode}
+              </span>
+              <span>
+                <span className="text-slate-400">Hops:</span> {hopsUsed}{hopCap != null ? ` / ${hopCap}` : " / ∞"}
+              </span>
+              {target && (
+                <span>
+                  <span className="text-slate-400">Target:</span> {nameOf(target)}
+                </span>
+              )}
+              {current && (
+                <span>
+                  <span className="text-slate-400">Current:</span> {nameOf(current)}
+                </span>
+              )}
+              {nearCap && <span className="text-amber-300">Near cap</span>}
+              {atCap && <span className="text-rose-300">At cap</span>}
+            </div>
+
+            <div className="min-w-0">
+              <CountrySearch
+                source="/countries.cleaned.simplified.geojson"
+                allowedIso3={allowedIso3}
+              />
+            </div>
+
+            <details className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              <summary className="cursor-pointer list-none text-sm font-medium">
+                Options
+              </summary>
+              <div className="mt-3 flex flex-col gap-3">
+                <div className="grid grid-cols-1 gap-2">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="hud-label">Mode</span>
+                    <select
+                      value={mode}
+                      onChange={(e) => onModeChange(e.target.value as GameMode)}
+                      className="hud-select min-w-0"
+                    >
+                      <option>World</option>
+                      <option>Europe</option>
+                      <option>Asia</option>
+                      <option>Africa</option>
+                      <option>Americas</option>
+                      <option>Practice</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="hud-label">Difficulty</span>
+                    <select
+                      value={difficulty}
+                      onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
+                      className="hud-select min-w-0"
+                    >
+                      <option>Easy</option>
+                      <option>Normal</option>
+                      <option>Hard</option>
+                      <option>Extreme</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="hud-label">Projection</span>
+                    <select
+                      value={mapProjection}
+                      onChange={(e) => setMapProjection(e.target.value as MapProjection)}
+                      className="hud-select min-w-0"
+                    >
+                      <option value="Mercator">Mercator</option>
+                      <option value="NaturalEarth">Natural Earth</option>
+                    </select>
+                  </div>
+                </div>
+
+                {visitedNames.length > 0 && (
+                  <div className="text-[11px] leading-relaxed text-slate-300">
+                    Visited: <span className="break-words">{visitedNames.join(", ")}</span>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  {dupGuessIso && (
+                    <div className="hud-toast hud-toast-info text-[11px]">
+                      You’ve already visited <b>{nameOf(dupGuessIso)}</b>.
+                    </div>
+                  )}
+                  {lastPickFailed && (
+                    <div className="hud-toast hud-toast-warning text-[11px]">
+                      <div className="font-medium mb-0.5">Couldn’t find a route</div>
+                      <div className="opacity-90 mb-1">{lastPickMessage}</div>
+                      <div className="flex gap-1 flex-wrap">
+                        <button onClick={relaxDifficulty} className="hud-mini-button">
+                          Try easier
+                        </button>
+                        <button onClick={allowShorterPaths} className="hud-mini-button">
+                          Allow shorter paths
+                        </button>
+                        <button onClick={clearPickStatus} className="hud-mini-button">
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </details>
           </div>
         </div>
       </div>
