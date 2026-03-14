@@ -7,7 +7,12 @@ import {
   geoPath,
   geoGraticule,
 } from "d3-geo";
-import { zoom as d3zoom, zoomIdentity, type D3ZoomEvent } from "d3-zoom";
+import {
+  zoom as d3zoom,
+  zoomIdentity,
+  type D3ZoomEvent,
+  type ZoomTransform,
+} from "d3-zoom";
 import { select } from "d3-selection";
 import { CountryPath } from "./CountryPath";
 import { useGame } from "../store/game";
@@ -29,6 +34,7 @@ export default function Map({ width = 1000, height = 600 }) {
   const gRef = useRef<SVGGElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const zoomRef = useRef<ReturnType<typeof d3zoom<SVGSVGElement, unknown>> | null>(null);
+  const transformRef = useRef<ZoomTransform>(zoomIdentity);
 
   const { start, target, mapProjection } = useGame();
 
@@ -60,6 +66,22 @@ export default function Map({ width = 1000, height = 600 }) {
     return path(graticule());
   }, [path]);
 
+  const translateExtent = useMemo<[[number, number], [number, number]]>(() => {
+    if (!fc) return [[0, 0], [width, height]];
+
+    const [[x0, y0], [x1, y1]] = path.bounds(
+      fc as GeoPermissibleObjects
+    );
+
+    const horizontalPadding = Math.max(120, width * 0.2);
+    const verticalPadding = Math.max(80, height * 0.18);
+
+    return [
+      [x0 - horizontalPadding, y0 - verticalPadding],
+      [x1 + horizontalPadding, y1 + verticalPadding],
+    ];
+  }, [fc, path, width, height]);
+
   // Imperative zoom: allow wheel/pinch and middle/right drag; left-click remains for selecting paths
   useEffect(() => {
     if (!svgRef.current || !gRef.current) return;
@@ -72,6 +94,8 @@ export default function Map({ width = 1000, height = 600 }) {
 
     const zoomBehaviour = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.8, 8])
+      .extent([[0, 0], [width, height]])
+      .translateExtent(translateExtent)
       .filter((event: ZoomFilterEvent) => {
         // Allow zoom for:
         // - wheel/pinch
@@ -100,6 +124,7 @@ export default function Map({ width = 1000, height = 600 }) {
         return false;
       })
       .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+        transformRef.current = event.transform;
         const t = event.transform.toString();
         if (raf) {
           pendingTransform = t;
@@ -115,6 +140,7 @@ export default function Map({ width = 1000, height = 600 }) {
 
     zoomRef.current = zoomBehaviour;
     svg.call(zoomBehaviour);
+    svg.call(zoomBehaviour.transform, transformRef.current);
 
     // Enable context menu again (right click)
     svg.on("contextmenu", null);
@@ -124,7 +150,7 @@ export default function Map({ width = 1000, height = 600 }) {
       zoomRef.current = null;
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [height, translateExtent, width]);
 
   useEffect(() => {
     if (!fc || !start || !target || !svgRef.current || !zoomRef.current) return;
@@ -167,6 +193,7 @@ export default function Map({ width = 1000, height = 600 }) {
     const translateY = visibleCenterY - scale * cy;
 
     const t = zoomIdentity.translate(translateX, translateY).scale(scale);
+    transformRef.current = t;
 
     const svgSelection = select(svgRef.current);
     svgSelection.call(zoomRef.current.transform, t);
