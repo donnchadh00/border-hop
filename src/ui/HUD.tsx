@@ -515,11 +515,13 @@ export default function HUD() {
               {atCap && <span className="text-rose-300">At cap</span>}
             </div>
 
-            <div className="min-w-0">
-              <CountrySearch
-                source="/countries.cleaned.simplified.geojson"
-                allowedIso3={allowedIso3}
-              />
+            <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+              <div className="mx-auto min-w-0 max-w-sm">
+                <CountrySearch
+                  source="/countries.cleaned.simplified.geojson"
+                  allowedIso3={allowedIso3}
+                />
+              </div>
             </div>
 
             <details className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">

@@ -119,7 +119,7 @@ export default function CountrySearch({
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="w-[min(92vw,24rem)] rounded-md border border-slate-600 bg-slate-900/90 text-slate-50 px-3 py-1.5 text-xs shadow-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+        className="w-full sm:w-[min(92vw,24rem)] rounded-md border border-slate-600 bg-slate-900/90 text-slate-50 px-3 py-1.5 text-xs shadow-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
         aria-autocomplete="list"
         aria-controls="country-suggest"
       />
